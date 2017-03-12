@@ -38,7 +38,7 @@ public class MainMenu implements Screen {
 		quitButton = new UiButton(button, "Quit Game", 5,game);
 		
 		ui.addUiButton(quitButton); // must flip order because actual rendering is
-		ui.addUiButton(startButton); // background for some reason
+		ui.addUiButton(startButton); // backward for some reason
 		ui.addUiText(gameTitle);
 		
 		ui.calculateElements();

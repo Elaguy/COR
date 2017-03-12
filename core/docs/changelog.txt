@@ -11,3 +11,5 @@ Version 0.1i
 6. UI System completed
 7. UI elements modified with scaling support and
 text support
+8. Fixed UI element incorrect positions b/c of
+scaling
