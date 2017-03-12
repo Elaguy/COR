@@ -16,28 +16,33 @@ public class UiElement {
 	private float elementX;
 	private float elementY;
 	
+	private int scale;
+	
 	private float textX;
 	private float textY;
 	
 	private boolean isButton;
 	private boolean isText;
 	
-	public UiElement(Texture tex) { // for images
+	public UiElement(Texture tex, int scale) { // for images
 		this.tex = tex;
+		this.scale = scale;
 		elementWidth = tex.getWidth();
 		elementHeight = tex.getHeight();
 	}
 	
-	public UiElement(Texture tex, String text, CORGame game) { // for buttons (with text)
+	public UiElement(Texture tex, String text, int scale,CORGame game) { // for buttons (with text)
 		this.tex = tex;
 		this.isButton = true;
+		this.scale = scale;
 		textLayout = new GlyphLayout(game.mainFont, text);
 		elementWidth = tex.getWidth();
 		elementHeight = tex.getHeight();
 	}
 	
-	public UiElement(String text, CORGame game) { // for text
+	public UiElement(String text, int scale,CORGame game) { // for text
 		this.isText = true;
+		this.scale = scale;
 		textLayout = new GlyphLayout(game.mainFont, text);
 		elementWidth = textLayout.width;
 		elementHeight = textLayout.height;
@@ -85,6 +90,10 @@ public class UiElement {
 	
 	public Texture getTexture() {
 		return tex;
+	}
+	
+	public int getScale() {
+		return scale;
 	}
 	
 	public GlyphLayout getGlyphLayout() {

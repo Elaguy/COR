@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class UiImage extends UiElement {
 
-	public UiImage(Texture tex) {
-		super(tex);
+	public UiImage(Texture tex, int scale) {
+		super(tex, scale);
 	}
 	
 }

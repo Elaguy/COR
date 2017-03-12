@@ -41,26 +41,27 @@ public class UI {
 		int usableHeight = screenHeight - (totalHeight + (margin * elements.size()*2));
 		
 		for(int i = 0; i < elements.size(); i++) {
-			totalWidth += elements.get(i).getWidth();
-			totalHeight += elements.get(i).getHeight();
+			totalWidth += elements.get(i).getWidth()*elements.get(i).getScale();
+			totalHeight += elements.get(i).getHeight()*elements.get(i).getScale();
 		}
 		
 		if(vertMode) {
 			if(usableHeight >= 0) { // if its possible to place the elements at all
-				float pos = (margin + elements.get(0).getHeight());
+				float pos = (margin + elements.get(0).getHeight()*elements.get(0).getScale());
 				
 				for(int i = 0; i < elements.size(); i++) {
-					elements.get(i).setElementY(pos);
-					elements.get(i).setElementX((screenWidth/2) - (elements.get(i).getWidth()/2)); // center on x axis
+					UiElement current = elements.get(i);
+					current.setElementY(pos);
+					current.setElementX((screenWidth/2) - ((current.getWidth()*current.getScale())/2)); // center on x axis
 					
-					if(elements.get(i).isButton()) {
-						elements.get(i).setTextX(elements.get(i).getElementX() + 
-								(elements.get(i).getWidth() - elements.get(i).getGlyphLayout().width)/2);
-						elements.get(i).setTextY(elements.get(i).getElementY() + 
-								(elements.get(i).getHeight() + elements.get(i).getGlyphLayout().height)/2);
+					if(current.isButton()) {
+						current.setTextX(current.getElementX() + 
+								(current.getWidth()*current.getScale() - current.getGlyphLayout().width)/2);
+						current.setTextY(current.getElementY() + 
+								(current.getHeight()*current.getScale() + current.getGlyphLayout().height)/2);
 					}
 					
-					pos += (margin + elements.get(i).getHeight());
+					pos += (margin + current.getHeight()*current.getScale());
 				}
 			}
 		}
@@ -70,17 +71,18 @@ public class UI {
 				float pos = (margin + elements.get(0).getWidth());
 				
 				for(int i = 0; i < elements.size(); i++) {
-					elements.get(i).setElementX(pos);
-					elements.get(i).setElementY((screenHeight/2) - (elements.get(i).getHeight()/2));
+					UiElement current = elements.get(i);
+					current.setElementX(pos);
+					current.setElementY((screenHeight/2) - ((current.getHeight()*current.getScale())/2));
 					
-					if(elements.get(i).isButton()) {
-						elements.get(i).setTextX(elements.get(i).getElementX() + 
-								(elements.get(i).getWidth() - elements.get(i).getGlyphLayout().width)/2);
-						elements.get(i).setTextY(elements.get(i).getElementY() + 
-								(elements.get(i).getHeight() + elements.get(i).getGlyphLayout().height)/2);
+					if(current.isButton()) {
+						current.setTextX(current.getElementX() + 
+								(current.getWidth()*current.getScale() - current.getGlyphLayout().width)/2);
+						current.setTextY(current.getElementY() + 
+								(current.getHeight()*current.getScale() + current.getGlyphLayout().height)/2);
 					}
 					
-					pos += (margin + elements.get(i).getWidth());
+					pos += (margin + current.getWidth()*current.getScale());
 				}
 			}
 		}

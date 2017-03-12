@@ -1,0 +1,13 @@
+CENTRIPETAL ORBITAL RACERS CHANGELOG
+------------------------------------
+
+Version 0.1i
+--------------------------
+1. Game "shell/skeleton" written
+2. Loading screen completed
+3. AssetManager completed
+4. Fonts and other utilities completed
+5. Main Menu Started
+6. UI System completed
+7. UI elements modified with scaling support and
+text support

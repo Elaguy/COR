@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import schultz.personal.cor.helpers.UI;
 import schultz.personal.cor.helpers.UiButton;
+import schultz.personal.cor.helpers.UiElement;
 import schultz.personal.cor.helpers.UiImage;
 import schultz.personal.cor.helpers.UiText;
 
@@ -16,6 +17,7 @@ public class MainMenu implements Screen {
 
 	private CORGame game;
 	private Texture background;
+	private Texture button;
 	
 	private UI ui;
 	private UiText gameTitle;
@@ -29,17 +31,17 @@ public class MainMenu implements Screen {
 		
 		ui = new UI(game.viewport.getScreenWidth(), game.viewport.getScreenHeight(), 80, true);
 		
-		gameTitle = new UiText("Centripetal Orbital Racers", game);
-		startButton = new UiButton(new Texture(Gdx.files.internal("img/button.png")), "Start Game", game);
-		quitButton = new UiButton(new Texture(Gdx.files.internal("img/button.png")), "Quit Game", game);
+		loadAssets();
+		
+		gameTitle = new UiText("Centripetal Orbital Racers", 1,game);
+		startButton = new UiButton(button, "Start Game", 5,game);
+		quitButton = new UiButton(button, "Quit Game", 5,game);
 		
 		ui.addUiButton(quitButton); // must flip order because actual rendering is
 		ui.addUiButton(startButton); // background for some reason
 		ui.addUiText(gameTitle);
 		
 		ui.calculateElements();
-
-		loadAssets();
 	}
 
 	@Override
@@ -56,21 +58,24 @@ public class MainMenu implements Screen {
 		game.batch.draw(background, 0, 0);
 		
 		for(int i = 0; i < ui.getElements().size(); i++) {
-			if(ui.getElements().get(i).isText()){ // text
-				game.mainFont.draw(game.batch, ui.getElements().get(i).getGlyphLayout(), ui.getElements().get(i).getElementX(),
-						ui.getElements().get(i).getElementY());
+			UiElement current = ui.getElements().get(i);
+			
+			if(current.isText()){ // text
+				game.mainFont.draw(game.batch, current.getGlyphLayout(), current.getElementX(),
+						current.getElementY());
 			}
 			
 			else if(ui.getElements().get(i).isButton()) { // buttons
-				game.batch.draw(ui.getElements().get(i).getTexture(), ui.getElements().get(i).getElementX(),
-						ui.getElements().get(i).getElementY());
-				game.smallishFont.draw(game.batch, ui.getElements().get(i).getGlyphLayout(), ui.getElements().get(i).getTextX(),
-						ui.getElements().get(i).getTextY());
+				game.batch.draw(current.getTexture(), current.getElementX(),
+						current.getElementY(), current.getWidth()*current.getScale(),
+						current.getHeight()*current.getScale());
+				game.smallishFont.draw(game.batch, current.getGlyphLayout(), current.getTextX(),
+						current.getTextY());
 			}
 			
 			else { // images
-				game.batch.draw(ui.getElements().get(i).getTexture(), ui.getElements().get(i).getElementX(),
-						ui.getElements().get(i).getElementY());
+				game.batch.draw(current.getTexture(), current.getElementX(),
+						current.getElementY());
 			}
 		}
 		
@@ -109,7 +114,8 @@ public class MainMenu implements Screen {
 	}
 	
 	private void loadAssets() {
-		background = new Texture(Gdx.files.internal("img/menu_img.png"));
+		background = game.mgr.get("img/menu_img.png", Texture.class);
+		button = game.mgr.get("img/button.png", Texture.class);
 	}
 
 }
