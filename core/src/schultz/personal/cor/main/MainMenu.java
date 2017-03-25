@@ -3,14 +3,11 @@ package schultz.personal.cor.main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.math.Vector3;
 import schultz.personal.cor.helpers.UI;
 import schultz.personal.cor.helpers.UiButton;
 import schultz.personal.cor.helpers.UiElement;
-import schultz.personal.cor.helpers.UiImage;
 import schultz.personal.cor.helpers.UiText;
 
 public class MainMenu implements Screen {
@@ -18,6 +15,10 @@ public class MainMenu implements Screen {
 	private CORGame game;
 	private Texture background;
 	private Texture button;
+	private Texture buttonSelected;
+	private Texture buttonPressed;
+	
+	private Vector3 mousePos;
 	
 	private UI ui;
 	private UiText gameTitle;
@@ -32,6 +33,8 @@ public class MainMenu implements Screen {
 		ui = new UI(game.viewport.getScreenWidth(), game.viewport.getScreenHeight(), 80, true);
 		
 		loadAssets();
+		
+		mousePos = new Vector3();
 		
 		gameTitle = new UiText("Centripetal Orbital Racers", 1,game);
 		startButton = new UiButton(button, "Start Game", 5,game);
@@ -67,8 +70,8 @@ public class MainMenu implements Screen {
 			
 			else if(ui.getElements().get(i).isButton()) { // buttons
 				game.batch.draw(current.getTexture(), current.getElementX(),
-						current.getElementY(), current.getWidth()*current.getScale(),
-						current.getHeight()*current.getScale());
+						current.getElementY(), current.getWidth(),
+						current.getHeight());
 				game.smallishFont.draw(game.batch, current.getGlyphLayout(), current.getTextX(),
 						current.getTextY());
 			}
@@ -85,7 +88,28 @@ public class MainMenu implements Screen {
 	}
 	
 	public void update(float delta) {
-		Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
+		mousePos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+		game.cam.unproject(mousePos);
+		
+		//Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
+		
+//		System.out.println("ELEMENT X: " + ui.getElements().get(0).getElementX());
+//		System.out.println("ELEMENT X CUTOFF: " + (ui.getElements().get(0).getElementX() + ui.getElements().get(0).getWidth()));
+		
+		for(int i = 0; i < ui.getElements().size(); i++) {
+			UiElement current = ui.getElements().get(i);
+			
+			if(current.isButton()) {
+				if((mousePos.x >= current.getElementX()) && (mousePos.x <= (current.getElementX() + current.getWidth()))) {
+					if((mousePos.y >= current.getElementY()) && (mousePos.y <= (current.getElementY() + current.getHeight()))) {
+						current.setTexture(buttonSelected);
+					}
+				}
+				
+				else
+					current.setTexture(button);
+			}
+		}
 	}
 
 	@Override
@@ -116,6 +140,8 @@ public class MainMenu implements Screen {
 	private void loadAssets() {
 		background = game.mgr.get("img/menu_img.png", Texture.class);
 		button = game.mgr.get("img/button.png", Texture.class);
+		buttonSelected = game.mgr.get("img/button_selected.png", Texture.class);
+		buttonPressed = game.mgr.get("img/button_pressed.png", Texture.class);
 	}
 
 }

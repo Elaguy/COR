@@ -13,3 +13,6 @@ Version 0.1i
 text support
 8. Fixed UI element incorrect positions b/c of
 scaling
+9. Main Menu almost compelete
+(Buttons done except button pressing and first
+button staying selected after mouse leaving button)
