@@ -16,3 +16,5 @@ scaling
 9. Main Menu almost compelete
 (Buttons done except button pressing and first
 button staying selected after mouse leaving button)
+10. Main Menu is complete (bug mentioned previously is
+fixed

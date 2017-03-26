@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 
 public class Loading implements Screen {
 	
@@ -59,9 +61,8 @@ public class Loading implements Screen {
 	public void update(float delta) {
 		progress = game.mgr.getProgress();
 		
-		if(game.mgr.update()) {
+		if(game.mgr.update())
 			game.setScreen(new MainMenu(game));
-		}
 		
 		Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
 	}

@@ -24,6 +24,8 @@ public class UiElement {
 	private boolean isButton;
 	private boolean isText;
 	
+	private String text;
+	
 	public UiElement(Texture tex, int scale) { // for images
 		this.tex = tex;
 		this.scale = scale;
@@ -35,6 +37,7 @@ public class UiElement {
 		this.tex = tex;
 		this.isButton = true;
 		this.scale = scale;
+		this.text = text;
 		textLayout = new GlyphLayout(game.mainFont, text);
 		elementWidth = tex.getWidth() * scale;
 		elementHeight = tex.getHeight() * scale;
@@ -43,6 +46,7 @@ public class UiElement {
 	public UiElement(String text, int scale, CORGame game) { // for text
 		this.isText = true;
 		this.scale = scale;
+		this.text = text;
 		textLayout = new GlyphLayout(game.mainFont, text);
 		elementWidth = textLayout.width * scale;
 		elementHeight = textLayout.height * scale;
@@ -86,6 +90,10 @@ public class UiElement {
 	
 	public float getTextY() {
 		return textY;
+	}
+	
+	public String getText() {
+		return text;
 	}
 	
 	public Texture getTexture() {

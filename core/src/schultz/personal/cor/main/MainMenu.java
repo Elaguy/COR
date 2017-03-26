@@ -5,6 +5,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
+
 import schultz.personal.cor.helpers.UI;
 import schultz.personal.cor.helpers.UiButton;
 import schultz.personal.cor.helpers.UiElement;
@@ -91,10 +94,7 @@ public class MainMenu implements Screen {
 		mousePos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 		game.cam.unproject(mousePos);
 		
-		//Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
-		
-//		System.out.println("ELEMENT X: " + ui.getElements().get(0).getElementX());
-//		System.out.println("ELEMENT X CUTOFF: " + (ui.getElements().get(0).getElementX() + ui.getElements().get(0).getWidth()));
+		Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
 		
 		for(int i = 0; i < ui.getElements().size(); i++) {
 			UiElement current = ui.getElements().get(i);
@@ -103,7 +103,37 @@ public class MainMenu implements Screen {
 				if((mousePos.x >= current.getElementX()) && (mousePos.x <= (current.getElementX() + current.getWidth()))) {
 					if((mousePos.y >= current.getElementY()) && (mousePos.y <= (current.getElementY() + current.getHeight()))) {
 						current.setTexture(buttonSelected);
+						
+						if(Gdx.input.isTouched() && (current.getText().equals("Start Game"))) {
+							current.setTexture(buttonPressed);
+							
+							Timer.schedule(new Task() {
+
+								@Override
+								public void run() {
+									game.setScreen(new Tutorial(game));
+								}
+								
+							}, 1);
+						}
+						
+						else if(Gdx.input.isTouched() && (current.getText().equals("Quit Game"))) {
+							current.setTexture(buttonPressed);
+							
+							Timer.schedule(new Task() {
+
+								@Override
+								public void run() {
+									Gdx.app.exit();
+								}
+								
+							}, 1);
+						}
+							
 					}
+					
+					else
+						current.setTexture(button);
 				}
 				
 				else
