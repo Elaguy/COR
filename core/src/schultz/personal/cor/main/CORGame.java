@@ -24,8 +24,8 @@ public class CORGame extends Game {
 	private FreeTypeFontGenerator defaultFont;
 	private FreeTypeFontParameter fontParam;
 	
-	private int screenWidth = 1024;
-	private int screenHeight = 768;
+	private final int SCREEN_WIDTH = 1024;
+	private final int SCREEN_HEIGHT = 768;
 	
 	@Override
 	public void create () {
@@ -36,8 +36,8 @@ public class CORGame extends Game {
 		mainFont = new BitmapFont();
 		
 		cam = new OrthographicCamera();
-		cam.setToOrtho(false, screenWidth, screenHeight);
-		viewport = new FitViewport(screenWidth, screenHeight, cam);
+		cam.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+		viewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, cam);
 		
 		defaultFont = new FreeTypeFontGenerator(Gdx.files.internal("fonts/audiowide-regular.ttf"));
 		fontParam = new FreeTypeFontParameter();
@@ -64,16 +64,11 @@ public class CORGame extends Game {
 	}
 	
 	public int getScreenWidth() {
-		return screenWidth;
+		return SCREEN_WIDTH;
 	}
 	
 	public int getScreenHeight() {
-		return screenHeight;
-	}
-	
-	public void setScreenSize(int width, int height) {
-		screenWidth = width;
-		screenHeight = height;
+		return SCREEN_HEIGHT;
 	}
 	
 	public FreeTypeFontParameter getFontParam() {

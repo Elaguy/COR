@@ -99,7 +99,8 @@ public class Loading implements Screen {
 		game.mgr.load("img/button_selected.png", Texture.class);
 		game.mgr.load("img/button_pressed.png", Texture.class);
 		game.mgr.load("img/backgrnd_1.png", Texture.class);
-		game.mgr.load("img/tile_map.png", Texture.class);
+		game.mgr.load("img/track1.png", Texture.class);
+		game.mgr.load("img/car1.png", Texture.class);
 	}
 
 }

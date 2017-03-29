@@ -13,7 +13,7 @@ public class CORLauncher {
 		cor.config = new LwjglApplicationConfiguration();
 		cor.config.width = 1027;
 		cor.config.height = 768;
-		cor.config.title = "COR - Version 0.1i";
+		cor.config.title = "COR - Version 0.2i";
 		new LwjglApplication(new CORGame(), cor.config);
 	}
 	

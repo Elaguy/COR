@@ -111,7 +111,7 @@ public class MainMenu implements Screen {
 
 								@Override
 								public void run() {
-									game.setScreen(new Tutorial(game));
+									game.setScreen(new Track1(game));
 								}
 								
 							}, 1);
@@ -164,7 +164,10 @@ public class MainMenu implements Screen {
 
 	@Override
 	public void dispose() {
-		
+		background.dispose();
+		button.dispose();
+		buttonSelected.dispose();
+		buttonPressed.dispose();
 	}
 	
 	private void loadAssets() {
