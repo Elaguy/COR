@@ -5,4 +5,4 @@ than anything though.
 
 Written in Java with LibGDX.
 
-The current version is 0.1i (indevelopment/pre-alpha).
+The current version is 0.2i (indevelopment/pre-alpha).
