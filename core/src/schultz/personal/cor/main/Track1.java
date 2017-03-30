@@ -27,6 +27,8 @@ public class Track1 implements Screen {
 	private float acc; // acceleration
 	private float friction;
 	private float rotation;
+	private float rotationStep;
+	private float topSpeed;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -51,6 +53,8 @@ public class Track1 implements Screen {
 		acc = 0.1f;
 		friction = 0.05f;
 		rotation = 0;
+		rotationStep = 1.001f;
+		topSpeed = 50;
 	}
 
 	@Override
@@ -88,24 +92,28 @@ public class Track1 implements Screen {
 			speed -= acc;
 		}
 		
-//		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-//			
-//		}
-//		
-//		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-//			
-//		}
-		
-		else if (speed > 0 && speed != 0) {
-				speed -= friction;
+		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+			rotation -= (rotationStep * (speed/topSpeed));
 		}
 		
-		else if (speed < 0 && speed != 0) {
+		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+			rotation += (rotationStep * (speed/topSpeed));
+		}
+		
+		else if (Math.round(speed) > 0 && speed != 0) {
+			speed -= friction;
+		}
+		
+		else if (Math.round(speed) < 0 && speed != 0) {
 			speed += friction;
 		}
 		
 		System.out.println(speed);
+		track.rotate(rotation);
+		rotation = 0;
+		track.setOrigin(playerCar.getX(), playerCar.getY());
 		track.setX(track.getX() + speed);
+		track.setOrigin(playerCar.getX(), playerCar.getY());
 	}
 
 	@Override
