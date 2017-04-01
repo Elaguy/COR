@@ -4,12 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 
 public class Track1 implements Screen {
 	
 	private CORGame game;
+	private OrthographicCamera cam;
 	
 	private Texture background;
 	private Texture trackTex;
@@ -18,12 +21,10 @@ public class Track1 implements Screen {
 	private Sprite track;
 	private Sprite playerCar;
 	
-	private int imgScale;
-	
 	private float trackX;
 	private float trackY;
 	
-	private float speed;
+	private Vector2 speed;
 	private float acc; // acceleration
 	private float friction;
 	private float rotation;
@@ -33,9 +34,8 @@ public class Track1 implements Screen {
 	public Track1(CORGame game) {
 		this.game = game;
 		
-		game.cam.update();
-		
-		imgScale = 5;
+		cam = new OrthographicCamera(game.getScreenWidth(), game.getScreenHeight());
+		cam.update();
 		
 		loadAssets();
 		
@@ -46,14 +46,14 @@ public class Track1 implements Screen {
 		trackY = (game.getScreenHeight()/2) - (playerCar.getHeight()/2);
 		
 		track.setPosition(trackX, trackY);
+		playerCar.setPosition((game.getScreenWidth()/2) - (playerCar.getWidth()/2), 
+				(game.getScreenHeight()/2) - (playerCar.getHeight()/2));
 		
-		track.setOrigin(playerCar.getX(), playerCar.getY());
-		
-		speed = 0;
+		speed = new Vector2(0, 0);
 		acc = 0.1f;
-		friction = 0.05f;
+		friction = 0.01f;
 		rotation = 0;
-		rotationStep = 1.001f;
+		rotationStep = 0.001f;
 		topSpeed = 50;
 	}
 
@@ -69,10 +69,12 @@ public class Track1 implements Screen {
 		
 		game.batch.begin();
 		
-		game.batch.draw(background, 0, 0, background.getWidth()*imgScale, background.getHeight()*imgScale);
-		track.draw(game.batch);
-		game.batch.draw(playerCar, (game.getScreenWidth()/2) - (playerCar.getWidth()/2), 
-				(game.getScreenHeight()/2) - (playerCar.getHeight()/2));
+		game.batch.setProjectionMatrix(cam.combined);
+		
+		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
+		game.batch.draw(track, trackX, trackY);
+		game.batch.draw(playerCar, playerCar.getX(), playerCar.getY(), playerCar.getOriginX(),
+				playerCar.getOriginY(), playerCar.getWidth(), playerCar.getHeight(), 1, 1, playerCar.getRotation());
 		// car's x and y is from screen and not viewport b/c viewport had the car move to a different
 		// position when maximizing window. MORE OF A TEMPORARY FIX.
 		
@@ -85,35 +87,43 @@ public class Track1 implements Screen {
 		Gdx.app.log("FPS", String.valueOf(Gdx.graphics.getFramesPerSecond()));
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			speed += acc;
+//			speed.x += acc;
+//			speed.y += acc;
+			playerCar.translate(speed.x += acc, speed.y += acc);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			speed -= acc;
+//			speed.x -= acc;
+//			speed.y -= acc;
+			playerCar.translate(speed.x -= acc, speed.y -= acc);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			rotation -= (rotationStep * (speed/topSpeed));
+			rotation += rotationStep;
+			speed.rotate(rotation);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			rotation += (rotationStep * (speed/topSpeed));
+			rotation -= rotationStep;
+			speed.rotate(rotation);
 		}
 		
-		else if (Math.round(speed) > 0 && speed != 0) {
-			speed -= friction;
+		if(Math.abs(speed.x) < 0.01 || Math.abs(speed.y) < 0.01) {
+			speed.x = 0;
+			speed.y = 0;
 		}
 		
-		else if (Math.round(speed) < 0 && speed != 0) {
-			speed += friction;
-		}
+		speed.x *= (1 - friction);
+		speed.y *= (1 - friction);
 		
 		System.out.println(speed);
-		track.rotate(rotation);
-		rotation = 0;
-		track.setOrigin(playerCar.getX(), playerCar.getY());
-		track.setX(track.getX() + speed);
-		track.setOrigin(playerCar.getX(), playerCar.getY());
+		
+		playerCar.setOriginCenter();
+		
+		playerCar.rotate(speed.angle());
+		
+		cam.position.set(playerCar.getX() + (playerCar.getWidth()/2), playerCar.getY() + (playerCar.getHeight()/2), 0);
+		cam.update();
 	}
 
 	@Override
