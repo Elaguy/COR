@@ -101,11 +101,13 @@ public class Track1 implements Screen {
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			rotation += rotationStep;
 			speed.rotate(rotation);
+			playerCar.rotate(speed.angle());
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			rotation -= rotationStep;
 			speed.rotate(rotation);
+			playerCar.rotate(speed.angle());
 		}
 		
 		if(Math.abs(speed.x) < 0.01 || Math.abs(speed.y) < 0.01) {
@@ -119,8 +121,6 @@ public class Track1 implements Screen {
 		System.out.println(speed);
 		
 		playerCar.setOriginCenter();
-		
-		playerCar.rotate(speed.angle());
 		
 		cam.position.set(playerCar.getX() + (playerCar.getWidth()/2), playerCar.getY() + (playerCar.getHeight()/2), 0);
 		cam.update();
