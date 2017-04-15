@@ -1,5 +1,7 @@
 package schultz.personal.cor.main;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -9,17 +11,24 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
+import schultz.personal.cor.helpers.Car;
+
 public class Track1 implements Screen {
 	
 	private CORGame game;
 	private OrthographicCamera cam;
+	
+	private int numAiCars;
+	
+	private ArrayList<Car> cars;
 	
 	private Texture background;
 	private Texture trackTex;
 	private Texture playerCarTex;
 	
 	private Sprite track;
-	private Sprite playerCar;
+	
+	private Car playerCar;
 	
 	private float trackX;
 	private float trackY;
@@ -28,8 +37,6 @@ public class Track1 implements Screen {
 	private float acc; // acceleration
 	private float friction;
 	private float rotation;
-	private float rotationStep;
-	private float topvel;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -39,26 +46,34 @@ public class Track1 implements Screen {
 		
 		loadAssets();
 		
+		numAiCars = 1;
+		
+		cars = new ArrayList<Car>();
+		
+		playerCar = new Car(new Sprite(playerCarTex));
+		
+		cars.add(playerCar); // index 0 of cars is always playerCar
+		
+		for(int i = 0; i < numAiCars; i++) {
+			//cars.add(new Car());
+		}
+		
 		track = new Sprite(trackTex);
-		playerCar = new Sprite(playerCarTex);
 		
 		trackX = (-track.getWidth()/2) - 90;
-		trackY = (game.getScreenHeight()/2) - (playerCar.getHeight()/2);
+		trackY = (game.getScreenHeight()/2) - (playerCar.getSprite().getHeight()/2);
 		
 		track.setPosition(trackX, trackY);
-		playerCar.setPosition((game.getScreenWidth()/2) - (playerCar.getWidth()/2), 
-				(game.getScreenHeight()/2) - (playerCar.getHeight()/2));
+		playerCar.getSprite().setPosition((game.getScreenWidth()/2) - (playerCar.getSprite().getWidth()/2), 
+				(game.getScreenHeight()/2) - (playerCar.getSprite().getHeight()/2));
 		
 		/*
-		 * Recommended acceleration is 0.2f,
+		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
 		 * b/c of friction
 		 */
 		acc = 0.2f;
 		friction = 0.01f;
-		rotation = 0;
-		rotationStep = 0.1f;
-		topvel = 50;
 	}
 
 	@Override
@@ -77,8 +92,8 @@ public class Track1 implements Screen {
 		
 		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
 		game.batch.draw(track, trackX, trackY);
-		game.batch.draw(playerCar, playerCar.getX(), playerCar.getY(), playerCar.getOriginX(),
-				playerCar.getOriginY(), playerCar.getWidth(), playerCar.getHeight(), 1, 1, playerCar.getRotation());
+		game.batch.draw(playerCar.getSprite(), playerCar.getSprite().getX(), playerCar.getSprite().getY(), playerCar.getSprite().getOriginX(),
+				playerCar.getSprite().getOriginY(), playerCar.getSprite().getWidth(), playerCar.getSprite().getHeight(), 1, 1, playerCar.getSprite().getRotation());
 		
 		game.batch.end();
 		
@@ -88,51 +103,35 @@ public class Track1 implements Screen {
 	private void update(float delta) {
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			speed -= acc;
+			playerCar.setSpeed(playerCar.getSpeed() - acc);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			speed += acc;
+			playerCar.setSpeed(playerCar.getSpeed() + acc);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			playerCar.rotate(3);
+			playerCar.getSprite().rotate(3);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			playerCar.rotate(-3);
+			playerCar.getSprite().rotate(-3);
 		}
 		
-		if(Math.abs(speed) < 0.1 || Math.abs(speed) < 0.1) {
-			speed = 0;
+		if(Math.abs(playerCar.getSpeed()) < 0.1) {
+			playerCar.setSpeed(0);
 		}
-	
-		speed *= (1 - friction);
 		
-		Vector2 vel = getVelocity(speed, playerCar.getRotation());
+		playerCar.setSpeed(playerCar.getSpeed() * (1 - friction));
 		
-		playerCar.setOriginCenter();
+		playerCar.getSprite().setOriginCenter();
 		
-		playerCar.setX((float) (playerCar.getX() + vel.x));
-		playerCar.setY((float) (playerCar.getY() + vel.y));
+		playerCar.move();
 		
-		System.out.println("Speed: " + speed);
-//		System.out.println("VelX: " + vel.x + " - " + "VelY: " + vel.y);
-//		System.out.println("Rotation: " + playerCar.getRotation());
+		System.out.println("Speed: " + playerCar.getSpeed());
 		
-		cam.position.set(playerCar.getX() + (playerCar.getWidth()/2), playerCar.getY() + (playerCar.getHeight()/2), 0);
+		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
-	}
-	
-	private Vector2 getVelocity(float speed, float rotation) {
-		Vector2 vel = new Vector2();
-		float vx = (float) Math.cos(Math.toRadians(rotation)) * speed;
-		float vy = (float) Math.sin(Math.toRadians(rotation)) * speed;
-		
-		vel.x = vx;
-		vel.y = vy;
-		
-		return vel;
 	}
 
 	@Override
