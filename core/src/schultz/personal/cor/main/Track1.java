@@ -1,7 +1,6 @@
 package schultz.personal.cor.main;
 
 import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
 import schultz.personal.cor.helpers.Car;
+import schultz.personal.cor.helpers.Waypoint;
 
 public class Track1 implements Screen {
 	
@@ -19,12 +19,15 @@ public class Track1 implements Screen {
 	private OrthographicCamera cam;
 	
 	private int numAiCars;
+	private int numWaypoints;
 	
 	private ArrayList<Car> cars;
+	private ArrayList<Waypoint> waypoints;
 	
 	private Texture background;
 	private Texture trackTex;
 	private Texture playerCarTex;
+	private Texture AICarTex;
 	
 	private Sprite track;
 	
@@ -33,10 +36,11 @@ public class Track1 implements Screen {
 	private float trackX;
 	private float trackY;
 	
-	private float speed;
 	private float acc; // acceleration
 	private float friction;
-	private float rotation;
+	
+	private float x1; // used in waypoint calculations
+	private float y1;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -47,16 +51,27 @@ public class Track1 implements Screen {
 		loadAssets();
 		
 		numAiCars = 1;
+		numWaypoints = 1;
 		
 		cars = new ArrayList<Car>();
+		waypoints = new ArrayList<Waypoint>();
 		
-		playerCar = new Car(new Sprite(playerCarTex));
+		playerCar = new Car(new Sprite(playerCarTex), "PC"); // 'PC' = playerCar
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
-		for(int i = 0; i < numAiCars; i++) {
-			//cars.add(new Car());
+		for(int i = 1; i <= numAiCars; i++) {
+			cars.add(new Car(new Sprite(AICarTex), "AI1"));
+			
+			Car current = cars.get(i);
+			
+			current.getSprite().setPosition((game.getScreenWidth()/2) - (current.getSprite().getWidth()/2),
+					((game.getScreenHeight()/2) - (current.getSprite().getHeight()/2)) + 75);
+			
+			current.getSprite().setOriginCenter();
 		}
+		
+		waypoints.add(new Waypoint(new Vector2(337, cars.get(1).getSprite().getY()), "AI1"));
 		
 		track = new Sprite(trackTex);
 		
@@ -92,8 +107,13 @@ public class Track1 implements Screen {
 		
 		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
 		game.batch.draw(track, trackX, trackY);
-		game.batch.draw(playerCar.getSprite(), playerCar.getSprite().getX(), playerCar.getSprite().getY(), playerCar.getSprite().getOriginX(),
-				playerCar.getSprite().getOriginY(), playerCar.getSprite().getWidth(), playerCar.getSprite().getHeight(), 1, 1, playerCar.getSprite().getRotation());
+		
+		for(int i = 0; i < cars.size(); i++) {
+			Car current = cars.get(i);
+			
+			game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+					current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());		
+		}
 		
 		game.batch.end();
 		
@@ -101,7 +121,11 @@ public class Track1 implements Screen {
 	}
 	
 	private void update(float delta) {
-		
+		updatePlayerCar();
+		updateAICars();
+	}
+	
+	private void updatePlayerCar() {
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			playerCar.setSpeed(playerCar.getSpeed() - acc);
 		}
@@ -128,10 +152,23 @@ public class Track1 implements Screen {
 		
 		playerCar.move();
 		
-		System.out.println("Speed: " + playerCar.getSpeed());
-		
-		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
+		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
+				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
+	}
+	
+	private void updateAICars() {
+		Waypoint currentWP = null;
+		Car targetCar = null;
+		
+		for(int i = 0; i < waypoints.size(); i++) {
+			for(int j = 1; j < cars.size(); j++) {
+				if(cars.get(j).getID().equals(waypoints.get(i).getID())) {
+					currentWP = waypoints.get(i);
+					targetCar = cars.get(j);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -163,6 +200,7 @@ public class Track1 implements Screen {
 		background = game.mgr.get("img/backgrnd_1.png", Texture.class);
 		trackTex = game.mgr.get("img/track1.png", Texture.class);
 		playerCarTex = game.mgr.get("img/car1.png", Texture.class);
+		AICarTex = game.mgr.get("img/car2.png", Texture.class);
 	}
 
 }

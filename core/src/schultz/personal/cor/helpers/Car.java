@@ -7,10 +7,12 @@ public class Car {
 	
 	private Sprite car;
 	private float speed;
+	private String id;
 	
-	public Car(Sprite car) {
+	public Car(Sprite car, String id) {
 		this.car = car;
 		speed = 0;
+		this.id = id.substring(0, Math.min(id.length(), 4)); // reduces to 4 chars or less
 	}
 	
 	public Vector2 getVelocity(float speed, float rotation) {
@@ -36,6 +38,10 @@ public class Car {
 
 	public float getSpeed() {
 		return speed;
+	}
+	
+	public String getID() {
+		return id;
 	}
 
 	public void setSpeed(float speed) {
