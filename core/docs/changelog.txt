@@ -3,6 +3,8 @@ CENTRIPETAL ORBITAL RACERS CHANGELOG
 
 Version 0.1i
 --------------------------
+IN-DEVELOPMENT STAGE
+
 1. Game "shell/skeleton" written
 2. Loading screen completed
 3. AssetManager completed
@@ -20,3 +22,14 @@ button staying selected after mouse leaving button)
 fixed)
 11. Track1 screen has a background, a track, and a player car
 (not properly positioned yet)
+
+Version 0.2i - 0.3i
+---------------------------
+1. Player car proplerly positioned
+2. Car movement with rotation and camera follow completed
+3. Added Car class (objectified the cars, including playerCar)
+4. Added Waypoint class that has a target Car associated with it
+
+Version 0.4a
+---------------------------
+ALPHA STAGE

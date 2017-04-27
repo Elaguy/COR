@@ -56,12 +56,12 @@ public class Track1 implements Screen {
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
 		
-		playerCar = new Car(new Sprite(playerCarTex), "PC"); // 'PC' = playerCar
+		playerCar = new Car(new Sprite(playerCarTex)); // 'PC' = playerCar
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
 		for(int i = 1; i <= numAiCars; i++) {
-			cars.add(new Car(new Sprite(AICarTex), "AI1"));
+			cars.add(new Car(new Sprite(AICarTex)));
 			
 			Car current = cars.get(i);
 			
@@ -71,7 +71,7 @@ public class Track1 implements Screen {
 			current.getSprite().setOriginCenter();
 		}
 		
-		waypoints.add(new Waypoint(new Vector2(337, cars.get(1).getSprite().getY()), "AI1"));
+		waypoints.add(new Waypoint(new Vector2(337, cars.get(1).getSprite().getY()), cars.get(1)));
 		
 		track = new Sprite(trackTex);
 		
@@ -158,17 +158,7 @@ public class Track1 implements Screen {
 	}
 	
 	private void updateAICars() {
-		Waypoint currentWP = null;
-		Car targetCar = null;
 		
-		for(int i = 0; i < waypoints.size(); i++) {
-			for(int j = 1; j < cars.size(); j++) {
-				if(cars.get(j).getID().equals(waypoints.get(i).getID())) {
-					currentWP = waypoints.get(i);
-					targetCar = cars.get(j);
-				}
-			}
-		}
 	}
 
 	@Override
