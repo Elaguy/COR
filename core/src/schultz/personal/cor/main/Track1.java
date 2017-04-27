@@ -160,8 +160,6 @@ public class Track1 implements Screen {
 	private void updateAICars() {
 		for(int i = 0; i < waypoints.size(); i++) {
 			Waypoint wp = waypoints.get(i);
-			
-			
 		}
 	}
 
