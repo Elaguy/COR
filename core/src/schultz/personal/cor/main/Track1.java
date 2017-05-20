@@ -61,17 +61,19 @@ public class Track1 implements Screen {
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
 		for(int i = 1; i <= numAiCars; i++) {
-			cars.add(new Car(new Sprite(AICarTex)));
+			Sprite aiCarSprite = new Sprite(AICarTex);
 			
-			Car current = cars.get(i);
+			aiCarSprite.setX((game.getScreenWidth()/2) - (aiCarSprite.getWidth()/2));
+			aiCarSprite.setY((game.getScreenHeight()/2) - (aiCarSprite.getHeight()/2) + 75);
 			
-			current.getSprite().setPosition((game.getScreenWidth()/2) - (current.getSprite().getWidth()/2),
-					((game.getScreenHeight()/2) - (current.getSprite().getHeight()/2)) + 75);
+			aiCarSprite.setOriginCenter();
 			
-			current.getSprite().setOriginCenter();
+			cars.add(new Car(aiCarSprite));
 		}
 		
-		waypoints.add(new Waypoint(new Vector2(337, cars.get(1).getSprite().getY()), cars.get(1)));
+		float x = (cars.get(1).getSprite().getX() + cars.get(1).getSprite().getOriginX()) - 100;
+		float y = cars.get(1).getSprite().getY() + cars.get(1).getSprite().getOriginY();
+		waypoints.add(new Waypoint(new Vector2(x, y), cars.get(1), true));
 		
 		track = new Sprite(trackTex);
 		
@@ -85,7 +87,17 @@ public class Track1 implements Screen {
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
-		 * b/c of friction
+		 * b/c of friction (tested in-game)
+		 * 
+		 * So because 19.8 / 0.2 = 99,
+		 * acc * 99 = top speed
+		 * (0.2 * 99 = 19.8)
+		 * 
+		 * EX: 0.3 * 99 = 29.7 (approx. top speed)
+		 * 
+		 * This is with default friction of 0.01f
+		 * of course, but the same process can be used
+		 * with a different friction value
 		 */
 		acc = 0.2f;
 		friction = 0.01f;
@@ -155,11 +167,28 @@ public class Track1 implements Screen {
 		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
 				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
+		
+//		System.out.println(playerCar.getSpeed());
 	}
 	
 	private void updateAICars() {
 		for(int i = 0; i < waypoints.size(); i++) {
 			Waypoint wp = waypoints.get(i);
+			Car car = wp.getTargetCar();
+			
+			car.getSprite().setRotation(wp.getDist().angle());
+			
+			System.out.println("X: " + wp.getMidpointDist().x);
+			System.out.println("Y: " + wp.getMidpointDist().y);
+			
+			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0)
+				car.setSpeed(car.getSpeed() - acc);
+			
+			car.setSpeed(car.getSpeed() * (1 - friction));
+			
+			car.move();
+			
+			cam.update();
 		}
 	}
 

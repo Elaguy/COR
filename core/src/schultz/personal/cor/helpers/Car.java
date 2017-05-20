@@ -8,9 +8,15 @@ public class Car {
 	private Sprite car;
 	private float speed;
 	
+	private float midXPos; // the X pos of the car, but in the middle of the car
+	private float midYPos;
+	
 	public Car(Sprite car) {
 		this.car = car;
 		speed = 0;
+		
+		midXPos = car.getX() + car.getOriginX();
+		midYPos = car.getY() + car.getOriginY();
 	}
 	
 	public Vector2 getVelocity(float speed, float rotation) {
@@ -28,6 +34,9 @@ public class Car {
 		Vector2 vel = getVelocity(speed, car.getRotation());
 		car.setX(car.getX() + vel.x);
 		car.setY(car.getY() + vel.y);
+		
+		midXPos = car.getX() + car.getOriginX();
+		midYPos = car.getY() + car.getOriginY();
 	}
 	
 	public Sprite getSprite() {
@@ -40,5 +49,13 @@ public class Car {
 	
 	public void setSpeed(float speed) {
 		this.speed = speed;
+	}
+	
+	public float getMidXPos() {
+		return midXPos;
+	}
+	
+	public float getMidYPos() {
+		return midYPos;
 	}
 }
