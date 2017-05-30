@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 
 import schultz.personal.cor.helpers.Car;
@@ -71,8 +73,8 @@ public class Track1 implements Screen {
 			cars.add(new Car(aiCarSprite));
 		}
 		
-		float x = (cars.get(1).getSprite().getX() + cars.get(1).getSprite().getOriginX()) - 100;
-		float y = cars.get(1).getSprite().getY() + cars.get(1).getSprite().getOriginY();
+		float x = (cars.get(1).getMidXPos()) - 500;
+		float y = cars.get(1).getMidYPos();
 		waypoints.add(new Waypoint(new Vector2(x, y), cars.get(1), true));
 		
 		track = new Sprite(trackTex);
@@ -129,10 +131,29 @@ public class Track1 implements Screen {
 		
 		game.batch.end();
 		
+		
+		game.shape.begin(ShapeType.Filled);
+		
+		game.shape.setProjectionMatrix(cam.combined);
+		
+		for(int i = 0; i < waypoints.size(); i++) {
+			Waypoint current = waypoints.get(i);
+			
+			game.shape.setColor(Color.NAVY);
+			
+			game.shape.circle(current.getPos().x, current.getPos().y, 8);
+			
+			game.shape.setColor(Color.BROWN);
+			
+			game.shape.circle(current.getMidway().x, current.getMidway().y, 8);
+		}
+		
+		game.shape.end();
+		
 		update(delta);
 	}
 	
-	private void update(float delta) {
+	private void update(float delta) {		
 		updatePlayerCar();
 		updateAICars();
 	}
@@ -178,14 +199,18 @@ public class Track1 implements Screen {
 			
 			car.getSprite().setRotation(wp.getDist().angle());
 			
-			System.out.println("X: " + wp.getMidpointDist().x);
-			System.out.println("Y: " + wp.getMidpointDist().y);
-			
 			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0)
 				car.setSpeed(car.getSpeed() - acc);
 			
-			car.setSpeed(car.getSpeed() * (1 - friction));
+			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0)
+				car.setSpeed(car.getSpeed() + acc);
 			
+			if(((int) (wp.getDist().x) == 0) && (wp.getDist().y == 0)) {
+				car.setSpeed(0);
+			}
+			
+			//car.setSpeed(car.getSpeed() * (1 - friction));
+				
 			car.move();
 			
 			cam.update();
