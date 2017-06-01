@@ -15,11 +15,11 @@ public class Waypoint {
 		this.targetCar = targetCar;
 
 		if(targetCar.getMidXPos() == pos.x)
-			midway = new Vector2(pos.x, getDist().y/2);
+			midway = new Vector2(pos.x, (targetCar.getMidYPos() + pos.y)/2);
 		if(targetCar.getMidYPos() == pos.y)
-			midway = new Vector2(getDist().x/2, pos.y);
+			midway = new Vector2((targetCar.getMidXPos() + pos.x)/2, pos.y);
 		else
-			midway = new Vector2(getDist().x/2, getDist().y/2);
+			midway = new Vector2((targetCar.getMidXPos() + pos.x)/2, (targetCar.getMidYPos() + pos.y)/2);
 		
 		this.stopHere = stopHere;
 	}
@@ -29,7 +29,7 @@ public class Waypoint {
 	}
 	
 	public Vector2 getDist() {		
-		return new Vector2(Math.abs(targetCar.getMidXPos() - pos.x), Math.abs(targetCar.getMidYPos() - pos.y));
+		return new Vector2(targetCar.getMidXPos() - pos.x, targetCar.getMidYPos() - pos.y);
 	}
 	
 	public Vector2 getPos() {

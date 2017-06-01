@@ -62,6 +62,9 @@ public class Track1 implements Screen {
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
+		/*
+		 * With this current configuration, the AI Cars will spawn at (512, 459) (x, y)
+		 */
 		for(int i = 1; i <= numAiCars; i++) {
 			Sprite aiCarSprite = new Sprite(AICarTex);
 			
@@ -73,9 +76,11 @@ public class Track1 implements Screen {
 			cars.add(new Car(aiCarSprite));
 		}
 		
-		float x = (cars.get(1).getMidXPos()) - 500;
+		float x = (cars.get(1).getMidXPos()) + 500;
 		float y = cars.get(1).getMidYPos();
 		waypoints.add(new Waypoint(new Vector2(x, y), cars.get(1), true));
+		
+		System.out.println(cars.get(1).getMidYPos());
 		
 		track = new Sprite(trackTex);
 		
@@ -153,7 +158,9 @@ public class Track1 implements Screen {
 		update(delta);
 	}
 	
-	private void update(float delta) {		
+	private void update(float delta) {
+		System.out.println("(" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
+		
 		updatePlayerCar();
 		updateAICars();
 	}
@@ -199,15 +206,15 @@ public class Track1 implements Screen {
 			
 			car.getSprite().setRotation(wp.getDist().angle());
 			
-			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0)
-				car.setSpeed(car.getSpeed() - acc);
-			
-			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0)
-				car.setSpeed(car.getSpeed() + acc);
-			
-			if(((int) (wp.getDist().x) == 0) && (wp.getDist().y == 0)) {
-				car.setSpeed(0);
-			}
+//			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0)
+//				car.setSpeed(car.getSpeed() - acc);
+//				
+//			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0)
+//				car.setSpeed(car.getSpeed() + acc);
+//			
+//			if((Math.floor(wp.getDist().x) == 0) && (Math.floor(wp.getDist().y) == 0)) {
+//				car.setSpeed(0);
+//			}
 			
 			//car.setSpeed(car.getSpeed() * (1 - friction));
 				
