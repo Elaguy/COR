@@ -21,10 +21,11 @@ public class Track1 implements Screen {
 	private OrthographicCamera cam;
 	
 	private int numAiCars;
-	private int numWaypoints;
 	
 	private ArrayList<Car> cars;
 	private ArrayList<Waypoint> waypoints;
+	
+	private Waypoint current;
 	
 	private Texture background;
 	private Texture trackTex;
@@ -53,7 +54,6 @@ public class Track1 implements Screen {
 		loadAssets();
 		
 		numAiCars = 1;
-		numWaypoints = 1;
 		
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
@@ -76,11 +76,11 @@ public class Track1 implements Screen {
 			cars.add(new Car(aiCarSprite));
 		}
 		
-		float x = (cars.get(1).getMidXPos()) - 500;
-		float y = cars.get(1).getMidYPos() + 250;
-		waypoints.add(new Waypoint(new Vector2(x, y), cars.get(1), true));
+		float x = cars.get(1).getMidXPos();
+		float y = cars.get(1).getMidYPos();
+		waypoints.add(new Waypoint(new Vector2(x - 500, y), cars.get(1), true));
 		
-		System.out.println(cars.get(1).getMidYPos());
+		current = waypoints.get(0);
 		
 		track = new Sprite(trackTex);
 		
@@ -141,17 +141,9 @@ public class Track1 implements Screen {
 		
 		game.shape.setProjectionMatrix(cam.combined);
 		
-		for(int i = 0; i < waypoints.size(); i++) {
-			Waypoint current = waypoints.get(i);
+		game.shape.setColor(Color.NAVY);
 			
-			game.shape.setColor(Color.NAVY);
-			
-			game.shape.circle(current.getPos().x, current.getPos().y, 8);
-			
-			game.shape.setColor(Color.BROWN);
-			
-			game.shape.circle(current.getMidway().x, current.getMidway().y, 8);
-		}
+		game.shape.circle(current.getPos().x, current.getPos().y, 8);
 		
 		game.shape.end();
 		
@@ -159,10 +151,16 @@ public class Track1 implements Screen {
 	}
 	
 	private void update(float delta) {		
+		if(current.getCompleted()) {			
+			if((waypoints.indexOf(current) + 1) < waypoints.size()) {
+				current = waypoints.get(waypoints.indexOf(current)+1);
+			}
+		}
+		
 		updatePlayerCar();
 		updateAICars();
 	}
-	
+
 	private void updatePlayerCar() {
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			playerCar.setSpeed(playerCar.getSpeed() - acc);
@@ -193,37 +191,35 @@ public class Track1 implements Screen {
 		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
 				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
-		
-		System.out.println(playerCar.getSprite().getRotation());
 	}
 	
 	private void updateAICars() {
-		for(int i = 0; i < waypoints.size(); i++) {
-			Waypoint wp = waypoints.get(i);
-			Car car = wp.getTargetCar();
-
-			car.getSprite().setRotation(wp.getDist().angle());
+		Waypoint wp = current;
+		Car car = wp.getTargetCar();
 			
-			System.out.println(car.getSprite().getRotation());
+		car.getSprite().setRotation(wp.getDist().angle());
 			
-			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0) { // before midpoint, so speed up
-				car.setSpeed(car.getSpeed() - acc);
-			}
-				
-			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0) {// after midpoint, so slow down
-				car.setSpeed(car.getSpeed() + acc);
-			}
+		//System.out.println(car.getSprite().getRotation());
 			
-			if((Math.floor(wp.getDist().x) == 0) && (Math.floor(wp.getDist().y) == 0)) { // at waypoint, so stop
-				car.setSpeed(0);
-			}
-			
-			//car.setSpeed(car.getSpeed() * (1 - friction));
-				
-			car.move();
-			
-			cam.update();
+		if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
+			car.setSpeed(car.getSpeed() - acc);
 		}
+			
+		/*
+		 * If car is set to stop at this waypoint OR this waypoint is the last in the list AND
+		 * the car's distance meets the "threshold", stop the car (this prevents strange glitches)
+		 */
+		if((Math.floor(wp.getAbsDist().x) < 10 || Math.floor(wp.getAbsDist().y) == 8)) {
+			if(wp.getStopHere() || waypoints.indexOf(wp) == (waypoints.size() - 1))
+				car.setSpeed(0);
+			
+			wp.setCompleted(true);
+		}
+		
+		car.setSpeed(car.getSpeed() * (1 - friction));
+			
+		car.move();
+		cam.update();
 	}
 
 	@Override

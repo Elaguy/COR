@@ -9,6 +9,7 @@ public class Waypoint {
 	private Vector2 dist; // dist between current targetCar midPos and waypoint midPos
 	private Car targetCar;
 	private boolean stopHere;
+	private boolean completed;
 	
 	public Waypoint(Vector2 pos, Car targetCar, boolean stopHere) {
 		this.pos = pos;
@@ -22,6 +23,7 @@ public class Waypoint {
 			midway = new Vector2((targetCar.getMidXPos() + pos.x)/2, (targetCar.getMidYPos() + pos.y)/2);
 		
 		this.stopHere = stopHere;
+		this.completed = false;
 	}
 	
 	public Vector2 getMidpointDist() {
@@ -30,6 +32,10 @@ public class Waypoint {
 	
 	public Vector2 getDist() {		
 		return new Vector2(targetCar.getMidXPos() - pos.x, targetCar.getMidYPos() - pos.y);
+	}
+	
+	public Vector2 getAbsDist() {		
+		return new Vector2(Math.abs(targetCar.getMidXPos() - pos.x), Math.abs(targetCar.getMidYPos() - pos.y));
 	}
 	
 	public Vector2 getPos() {
@@ -46,6 +52,14 @@ public class Waypoint {
 	
 	public boolean getStopHere() {
 		return stopHere;
+	}
+	
+	public boolean getCompleted() {
+		return completed;
+	}
+	
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
 	}
 	
 }
