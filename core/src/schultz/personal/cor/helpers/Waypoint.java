@@ -25,7 +25,7 @@ public class Waypoint {
 	}
 	
 	public Vector2 getMidpointDist() {
-		return new Vector2(targetCar.getMidXPos() - midway.x, targetCar.getMidYPos() - midway.y);
+		return new Vector2(midway.x - targetCar.getMidXPos(), midway.y - targetCar.getMidYPos());
 	}
 	
 	public Vector2 getDist() {		

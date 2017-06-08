@@ -76,8 +76,8 @@ public class Track1 implements Screen {
 			cars.add(new Car(aiCarSprite));
 		}
 		
-		float x = (cars.get(1).getMidXPos()) + 500;
-		float y = cars.get(1).getMidYPos();
+		float x = (cars.get(1).getMidXPos()) - 500;
+		float y = cars.get(1).getMidYPos() + 250;
 		waypoints.add(new Waypoint(new Vector2(x, y), cars.get(1), true));
 		
 		System.out.println(cars.get(1).getMidYPos());
@@ -158,9 +158,7 @@ public class Track1 implements Screen {
 		update(delta);
 	}
 	
-	private void update(float delta) {
-		System.out.println("(" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
-		
+	private void update(float delta) {		
 		updatePlayerCar();
 		updateAICars();
 	}
@@ -196,25 +194,29 @@ public class Track1 implements Screen {
 				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
 		
-//		System.out.println(playerCar.getSpeed());
+		System.out.println(playerCar.getSprite().getRotation());
 	}
 	
 	private void updateAICars() {
 		for(int i = 0; i < waypoints.size(); i++) {
 			Waypoint wp = waypoints.get(i);
 			Car car = wp.getTargetCar();
-			
+
 			car.getSprite().setRotation(wp.getDist().angle());
 			
-//			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0)
-//				car.setSpeed(car.getSpeed() - acc);
-//				
-//			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0)
-//				car.setSpeed(car.getSpeed() + acc);
-//			
-//			if((Math.floor(wp.getDist().x) == 0) && (Math.floor(wp.getDist().y) == 0)) {
-//				car.setSpeed(0);
-//			}
+			System.out.println(car.getSprite().getRotation());
+			
+			if(wp.getMidpointDist().x > 0 || wp.getMidpointDist().y > 0) { // before midpoint, so speed up
+				car.setSpeed(car.getSpeed() - acc);
+			}
+				
+			if(wp.getMidpointDist().x < 0 || wp.getMidpointDist().y < 0) {// after midpoint, so slow down
+				car.setSpeed(car.getSpeed() + acc);
+			}
+			
+			if((Math.floor(wp.getDist().x) == 0) && (Math.floor(wp.getDist().y) == 0)) { // at waypoint, so stop
+				car.setSpeed(0);
+			}
 			
 			//car.setSpeed(car.getSpeed() * (1 - friction));
 				
