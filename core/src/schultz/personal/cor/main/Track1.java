@@ -78,7 +78,11 @@ public class Track1 implements Screen {
 		
 		float x = cars.get(1).getMidXPos();
 		float y = cars.get(1).getMidYPos();
-		waypoints.add(new Waypoint(new Vector2(x - 500, y), cars.get(1), true));
+		waypoints.add(new Waypoint(new Vector2(x - 1742, y), cars.get(1), false));
+		waypoints.add(new Waypoint(new Vector2(waypoints.get(0).getPos().x, y + 2192), cars.get(1), false));
+		waypoints.add(new Waypoint(new Vector2(waypoints.get(1).getPos().x + 2242, waypoints.get(1).getPos().y), cars.get(1), false));
+		waypoints.add(new Waypoint(new Vector2(waypoints.get(2).getPos().x, waypoints.get(2).getPos().y - 2242), cars.get(1), false));
+		waypoints.add(new Waypoint(new Vector2(waypoints.get(3).getPos().x - 650, waypoints.get(3).getPos().y), cars.get(1), true));
 		
 		current = waypoints.get(0);
 		
@@ -153,12 +157,14 @@ public class Track1 implements Screen {
 	private void update(float delta) {		
 		if(current.getCompleted()) {			
 			if((waypoints.indexOf(current) + 1) < waypoints.size()) {
-				current = waypoints.get(waypoints.indexOf(current)+1);
+				current = waypoints.get(waypoints.indexOf(current)+1); // go to next waypoint
 			}
 		}
 		
 		updatePlayerCar();
 		updateAICars();
+		
+		System.out.println("(" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
 	}
 
 	private void updatePlayerCar() {
@@ -196,9 +202,9 @@ public class Track1 implements Screen {
 	private void updateAICars() {
 		Waypoint wp = current;
 		Car car = wp.getTargetCar();
-			
+		
 		car.getSprite().setRotation(wp.getDist().angle());
-			
+		
 		//System.out.println(car.getSprite().getRotation());
 			
 		if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
@@ -209,7 +215,7 @@ public class Track1 implements Screen {
 		 * If car is set to stop at this waypoint OR this waypoint is the last in the list AND
 		 * the car's distance meets the "threshold", stop the car (this prevents strange glitches)
 		 */
-		if((Math.floor(wp.getAbsDist().x) < 10 || Math.floor(wp.getAbsDist().y) == 8)) {
+		if((Math.floor(wp.getAbsDist().x) < 10 && Math.floor(wp.getAbsDist().y) < 10)) {
 			if(wp.getStopHere() || waypoints.indexOf(wp) == (waypoints.size() - 1))
 				car.setSpeed(0);
 			
