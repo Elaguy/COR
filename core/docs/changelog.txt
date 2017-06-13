@@ -33,3 +33,11 @@ Version 0.2i - 0.3i
 Version 0.4a
 ---------------------------
 ALPHA STAGE
+
+1. Cars are 'attached' to a waypoint
+2. Waypoint system is very buggy
+3. Previous system is scrapped, simpler system implemented
+4. Waypoint system mostly completed, except a rotation bug
+
+Version 0.5a
+---------------------------
