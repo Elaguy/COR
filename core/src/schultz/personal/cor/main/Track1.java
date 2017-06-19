@@ -39,7 +39,8 @@ public class Track1 implements Screen {
 	private float trackX;
 	private float trackY;
 	
-	private float acc; // acceleration
+	private float acc; // acceleration for player
+	private float aiAcc; // acceleration for ai
 	private float friction;
 	
 	private float x1; // used in waypoint calculations
@@ -108,10 +109,13 @@ public class Track1 implements Screen {
 		 * 
 		 * This is with default friction of 0.01f
 		 * of course, but the same process can be used
-		 * with a different friction value
+		 * with a different friction value (you just need to
+		 * do the initial test in-game first)
 		 */
-		acc = 0.2f;
+		acc = 0.2f; // top speed (default friction): 19.8
 		friction = 0.01f;
+		
+		aiAcc = 0.15f; // top speed (default friction): 14.85
 	}
 
 	@Override
@@ -208,7 +212,7 @@ public class Track1 implements Screen {
 		//System.out.println(car.getSprite().getRotation());
 			
 		if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
-			car.setSpeed(car.getSpeed() - acc);
+			car.setSpeed(car.getSpeed() - aiAcc);
 		}
 			
 		/*
