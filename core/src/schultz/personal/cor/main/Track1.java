@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 
 import schultz.personal.cor.helpers.Car;
+import schultz.personal.cor.helpers.PlasmaBullet;
 import schultz.personal.cor.helpers.Waypoint;
 
 public class Track1 implements Screen {
@@ -24,6 +25,7 @@ public class Track1 implements Screen {
 	
 	private ArrayList<Car> cars;
 	private ArrayList<Waypoint> waypoints;
+	private ArrayList<PlasmaBullet> pBullets;
 	
 	private Waypoint current;
 	
@@ -31,7 +33,9 @@ public class Track1 implements Screen {
 	private Texture trackTex;
 	private Texture playerCarTex;
 	private Texture AICarTex;
+	private Texture plasmaBulletTex;
 	
+	private Sprite aiCarSprite;
 	private Sprite track;
 	
 	private Car playerCar;
@@ -58,25 +62,28 @@ public class Track1 implements Screen {
 		
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
+		pBullets = new ArrayList<PlasmaBullet>();
 		
 		playerCar = new Car(new Sprite(playerCarTex)); // 'PC' = playerCar
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
+		track = new Sprite(trackTex);
+		aiCarSprite = new Sprite(AICarTex);
+
 		/*
-		 * With this current configuration, the AI Cars will spawn at (512, 459) (x, y)
+		 * With this current configuration, the AI Cars will spawn at (437, 421.5) (middle position)
 		 */
 		for(int i = 1; i <= numAiCars; i++) {
-			Sprite aiCarSprite = new Sprite(AICarTex);
+			Sprite aiSprite = new Sprite(AICarTex);
 			
-			aiCarSprite.setX((game.getScreenWidth()/2) - (aiCarSprite.getWidth()/2));
-			aiCarSprite.setY((game.getScreenHeight()/2) - (aiCarSprite.getHeight()/2) + 75);
+			aiSprite.setX((game.getScreenWidth()/2) - (aiCarSprite.getWidth()/2));
+			aiSprite.setY((game.getScreenHeight()/2) - (aiCarSprite.getHeight()/2) + 75);
 			
-			aiCarSprite.setOriginCenter();
-			
-			cars.add(new Car(aiCarSprite));
+			cars.add(new Car(aiSprite));
 		}
 		
+		// Default waypoints for the track
 		float x = cars.get(1).getMidXPos();
 		float y = cars.get(1).getMidYPos();
 		waypoints.add(new Waypoint(new Vector2(x - 1742, y), cars.get(1), false));
@@ -87,12 +94,13 @@ public class Track1 implements Screen {
 		
 		current = waypoints.get(0);
 		
-		track = new Sprite(trackTex);
-		
 		trackX = (-track.getWidth()/2) - 90;
 		trackY = (game.getScreenHeight()/2) - (playerCar.getSprite().getHeight()/2);
 		
 		track.setPosition(trackX, trackY);
+		/*
+		 * With this current configuration, the playerCar starts at (437, 346.5) (x,y) (NOT THE CENTER)
+		 */
 		playerCar.getSprite().setPosition((game.getScreenWidth()/2) - (playerCar.getSprite().getWidth()/2), 
 				(game.getScreenHeight()/2) - (playerCar.getSprite().getHeight()/2));
 		
@@ -135,11 +143,22 @@ public class Track1 implements Screen {
 		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
 		game.batch.draw(track, trackX, trackY);
 		
+		for(int i = 0; i < pBullets.size(); i++) {
+			if(!pBullets.isEmpty()) {
+				PlasmaBullet current = pBullets.get(i);
+
+				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+			}
+		}
+		
 		for(int i = 0; i < cars.size(); i++) {
-			Car current = cars.get(i);
-			
-			game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
-					current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());		
+			if(!cars.isEmpty()) {
+				Car current = cars.get(i);
+				
+				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+			}
 		}
 		
 		game.batch.end();
@@ -167,8 +186,7 @@ public class Track1 implements Screen {
 		
 		updatePlayerCar();
 		updateAICars();
-		
-		System.out.println("(" + Gdx.input.getX() + ", " + Gdx.input.getY() + ")");
+		updatePlasmaBullets();
 	}
 
 	private void updatePlayerCar() {
@@ -188,6 +206,12 @@ public class Track1 implements Screen {
 			playerCar.getSprite().rotate(-3);
 		}
 		
+		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			pBullets.add(new PlasmaBullet(new Sprite(plasmaBulletTex), playerCar));
+			
+			//System.out.println(pBullets.size());
+		}
+		
 		if(Math.abs(playerCar.getSpeed()) < 0.1) {
 			playerCar.setSpeed(0);
 		}
@@ -201,6 +225,8 @@ public class Track1 implements Screen {
 		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
 				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		cam.update();
+		
+		System.out.println(playerCar.getSprite().getRotation());
 	}
 	
 	private void updateAICars() {
@@ -230,6 +256,14 @@ public class Track1 implements Screen {
 			
 		car.move();
 		cam.update();
+	}
+	
+	private void updatePlasmaBullets() {
+		for(int i = 0; i < pBullets.size(); i++) {
+			PlasmaBullet current = pBullets.get(i);
+			
+			current.move();
+		}
 	}
 
 	@Override
@@ -262,6 +296,7 @@ public class Track1 implements Screen {
 		trackTex = game.mgr.get("img/track1.png", Texture.class);
 		playerCarTex = game.mgr.get("img/car1.png", Texture.class);
 		AICarTex = game.mgr.get("img/car2.png", Texture.class);
+		plasmaBulletTex = game.mgr.get("img/plasma_bullet.png", Texture.class);
 	}
 
 }

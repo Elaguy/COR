@@ -38,6 +38,4 @@ ALPHA STAGE
 2. Waypoint system is very buggy
 3. Previous system is scrapped, simpler system implemented
 4. Waypoint system mostly completed, except a rotation bug
-
-Version 0.5a
----------------------------
+5. Plasma cannons added to front of player car img
