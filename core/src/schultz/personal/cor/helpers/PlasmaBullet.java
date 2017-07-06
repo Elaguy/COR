@@ -47,7 +47,7 @@ public class PlasmaBullet {
 	}
 	
 	private float getInitPosX() {
-		double angle = Math.abs(Math.toRadians(boundCar.getSprite().getRotation()));
+		double angle = Math.abs(Math.toRadians(boundCar.getSprite().getRotation())); // angle must be positive to avoid changing formulas because I'm lazy
 		
 		/*
 		 * Negative angle, which with the playerCar's current image orientation, is clockwise

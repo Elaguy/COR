@@ -39,3 +39,6 @@ ALPHA STAGE
 3. Previous system is scrapped, simpler system implemented
 4. Waypoint system mostly completed, except a rotation bug
 5. Plasma cannons added to front of player car img
+6. Plasma bullets (mostly) align to the cannon no matter the playerCar's
+rotation, but when turning sharply and at higher speeds the bullets offset
+by a certain distance eventually, for some reason
