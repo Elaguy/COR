@@ -256,8 +256,6 @@ public class Track1 implements Screen {
 		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {	
 			if(totalDt > 0.5)
 				pBullets.add(new PlasmaBullet(new Sprite(plasmaBulletTex), playerCar, this));
-			
-			//System.out.println(pBullets.size());
 		}
 		
 		if(Math.abs(playerCar.getSpeed()) < 0.1) {
