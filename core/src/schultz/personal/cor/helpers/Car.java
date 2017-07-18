@@ -7,12 +7,13 @@ public class Car {
 	
 	private Sprite car;
 	private float speed;
-	
+	private Box boundBox = null;
 	private float midXPos; // the X pos of the car, but in the middle of the car
 	private float midYPos;
 	
 	public Car(Sprite car) {
 		this.car = car;
+		
 		speed = 0;
 		
 		midXPos = car.getX() + car.getOriginX();
@@ -37,6 +38,13 @@ public class Car {
 		
 		midXPos = car.getX() + car.getOriginX();
 		midYPos = car.getY() + car.getOriginY();
+		
+		if(boundBox != null)
+			boundBox.translate(vel.x, vel.y);
+	}
+	
+	public void setBoundBox(Box boundBox) {
+		this.boundBox = boundBox;
 	}
 	
 	public Sprite getSprite() {

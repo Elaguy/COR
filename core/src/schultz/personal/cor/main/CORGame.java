@@ -1,4 +1,4 @@
-package schultz.personal.cor.main;
+   package schultz.personal.cor.main;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;

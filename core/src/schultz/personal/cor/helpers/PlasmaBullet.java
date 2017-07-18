@@ -3,31 +3,37 @@ package schultz.personal.cor.helpers;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 
+import schultz.personal.cor.main.Track1;
+
 public class PlasmaBullet {
 	
 	private Vector2 midPos; // the positon of the origin/middle of the bullet
 	private Vector2 initGunPos; // the initial position of the gun at start of game
+	private Vector2 vel;
 	private Sprite pBullet;
 	private Car boundCar;
+	private Track1 track;
 	private float speed;
 	
-	public PlasmaBullet(Sprite pBullet, Car boundCar) {
+	public PlasmaBullet(Sprite pBullet, Car boundCar, Track1 track) {
 		this.initGunPos = new Vector2(boundCar.getSprite().getX() + 22, boundCar.getSprite().getY() + 37);
+		
 		this.pBullet = pBullet;
 		this.boundCar = boundCar;
 		this.midPos = new Vector2(pBullet.getX() + pBullet.getOriginX(), pBullet.getY() + pBullet.getOriginY());
+		this.track = track;
 		this.speed = -20;
 		
 		pBullet.setOriginCenter();
 		
-		pBullet.setX(getInitPosX());
-		pBullet.setY(getInitPosY());
+		pBullet.setX(track.getRotatedX(initGunPos) - pBullet.getWidth()/2);
+		pBullet.setY(track.getRotatedY(initGunPos) - pBullet.getHeight()/2);
 		
 		pBullet.setRotation(boundCar.getSprite().getRotation());
 	}
 	
 	private Vector2 getVelocity(float speed, float rotation) {
-		Vector2 vel = new Vector2();
+		vel = new Vector2();
 		float vx = (float) Math.cos(Math.toRadians(rotation)) * speed;
 		float vy = (float) Math.sin(Math.toRadians(rotation)) * speed;
 		
@@ -44,40 +50,6 @@ public class PlasmaBullet {
 		
 		midPos.x = pBullet.getX() + pBullet.getOriginX();
 		midPos.y = pBullet.getY() + pBullet.getOriginY();
-	}
-	
-	private float getInitPosX() {
-		double angle = Math.abs(Math.toRadians(boundCar.getSprite().getRotation())); // angle must be positive to avoid changing formulas because I'm lazy
-		
-		/*
-		 * Negative angle, which with the playerCar's current image orientation, is clockwise
-		 */
-		if(boundCar.getSprite().getRotation() < 0)
-			return (float) (Math.cos(angle) * (initGunPos.x - boundCar.getMidXPos()) + Math.sin(angle) * (initGunPos.y - boundCar.getMidYPos()) + boundCar.getMidXPos());
-		
-		/*
-		 * Positive angle, which with the playerCar's current image orientation is counter-clockwise
-		 */
-		if(boundCar.getSprite().getRotation() >= 0)
-			return (float) (Math.cos(angle) * (initGunPos.x - boundCar.getMidXPos()) - Math.sin(angle) * (initGunPos.y - boundCar.getMidYPos()) + boundCar.getMidXPos());
-		
-		else
-			return 0f;
-	}
-	
-	private float getInitPosY() {
-		double angle = Math.abs(Math.toRadians(boundCar.getSprite().getRotation()));
-		
-		// clockwise
-		if(boundCar.getSprite().getRotation() < 0)
-			return (float) (-Math.sin(angle) * (initGunPos.x - boundCar.getMidXPos()) + Math.cos(angle) * (initGunPos.y - boundCar.getMidYPos()) + boundCar.getMidYPos());
-		
-		// counter-clockwise
-		if(boundCar.getSprite().getRotation() >= 0)
-			return (float) (Math.sin(angle) * (initGunPos.x - boundCar.getMidXPos()) + Math.cos(angle) * (initGunPos.y - boundCar.getMidYPos()) + boundCar.getMidYPos());
-		
-		else
-			return 0f;
 	}
 	
 	public Vector2 getMidPos() {
