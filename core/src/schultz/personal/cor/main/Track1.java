@@ -36,7 +36,7 @@ public class Track1 implements Screen {
 	private Texture playerCarTex;
 	private Texture AICarTex;
 	private Texture plasmaBulletTex;
-	private Texture collisionMap;
+	private Texture collision;
 	
 	private Sprite playerCarSprite;
 	private Sprite aiCarSprite;
@@ -45,6 +45,8 @@ public class Track1 implements Screen {
 	private Car playerCar;
 	private Vector2 initGunPos; // initial gun and rear positions before rotation for collision detection
 	private Vector2 initRearPos;
+	private Vector2 gunPos;
+	private Vector2 rearPos;
 	
 	private Box playerBox;
 	
@@ -56,6 +58,8 @@ public class Track1 implements Screen {
 	private float friction;
 	
 	private float totalDt; // used to add up delta for bullet timer
+	
+	private Pixmap collisionPixmap;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -77,7 +81,7 @@ public class Track1 implements Screen {
 		track = new Sprite(trackTex);
 		
 		/*
-		 * With this current configuration, the playerCar starts at (437, 346.5) (x,y) (NOT THE CENTER)
+		 * With this current configuration, the playerCar starts at (1750, 1.35) (x,y) (based on bottom-left origin of car)
 		 */
 		playerCarSprite.setPosition(track.getX() + (track.getWidth()/2 + 550), 
 				(float) (track.getY() + (track.getHeight()/2 - 1198.65)));
@@ -89,10 +93,13 @@ public class Track1 implements Screen {
 		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
 		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
 		
+		gunPos = initGunPos;
+		rearPos = initRearPos;
+		
 		aiCarSprite = new Sprite(AICarTex);
 
 		/*
-		 * With this current configuration, the AI Cars will spawn at (437, 421.5) (middle position)
+		 * With this current configuration, the AI Cars will spawn at (1750, 80) (x, y) (based on bottom-left origin of car)
 		 */
 		for(int i = 1; i <= numAiCars; i++) {
 			Sprite aiSprite = new Sprite(AICarTex);
@@ -124,6 +131,10 @@ public class Track1 implements Screen {
 		boxes.add(playerBox);
 		
 		playerCar.setBoundBox(playerBox);
+		
+		collision.getTextureData().prepare();
+		
+		collisionPixmap = collision.getTextureData().consumePixmap();
 		
 		/*
 		 * Default acceleration is 0.2f,
@@ -196,6 +207,9 @@ public class Track1 implements Screen {
 			
 		game.shape.circle(playerCar.getMidXPos(), playerCar.getMidYPos(), 5);
 		
+		game.shape.circle(gunPos.x, gunPos.y, 4);
+		game.shape.circle(rearPos.x, rearPos.y, 4);
+		
 		for(int i = 0; i < boxes.size(); i++) {
 			Box current = boxes.get(i);
 			
@@ -231,7 +245,7 @@ public class Track1 implements Screen {
 		if(totalDt > 0.6)
 			totalDt = 0;
 		
-		System.out.println("(" + playerCar.getMidXPos() + ", " + playerCar.getMidYPos() + ")");
+//		System.out.println("(" + playerCar.getMidXPos() + ", " + playerCar.getMidYPos() + ")");
 	}
 
 	private void updatePlayerCar() {
@@ -266,21 +280,21 @@ public class Track1 implements Screen {
 		
 		playerCar.getSprite().setOriginCenter();
 		
-//		for(int i = 1; i < boxes.size(); i++) {
-//			Box current = boxes.get(i);
-//			
-//			if(playerBox.isColliding(playerBox, current)) {
-//				System.out.println("Colliding!");
-//				playerCar.setSpeed(0);
-//			}
-//		}
-//		
 		playerCar.move();
 		
 		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
 				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
 		
 		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
+		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
+		
+		gunPos.x = getRotatedX(initGunPos);
+		gunPos.y = getRotatedY(initGunPos);
+		
+		rearPos.x = getRotatedX(initRearPos);
+		rearPos.y = getRotatedY(initRearPos);
+		
+		checkPlayerCollisions();
 		
 		cam.update();
 	}
@@ -322,6 +336,16 @@ public class Track1 implements Screen {
 		}
 	}
 	
+	private void checkPlayerCollisions() {
+		if(!(getPixelColor(gunPos.x, background.getHeight() - gunPos.y).equals(Color.GREEN))) {
+			playerCar.setSpeed(2);
+		}
+		
+		if(!(getPixelColor(rearPos.x, background.getHeight() - rearPos.y).equals(Color.GREEN))) {
+			playerCar.setSpeed(-2);
+		}
+	}
+	
 	/*
 	 * A point on the car that was there initially will change position when the car rotates and moves.
 	 * These methods return the correct rotated point about the playerCar's middle x and y.
@@ -343,12 +367,8 @@ public class Track1 implements Screen {
 	 * (collision.png).
 	 * == LOCATIONS ARE BASED ON TOP LEFT WITH PIXMAP ==
 	 */
-	private Color getPixelColor(int x, int y) {
-		collisionMap.getTextureData().prepare();
-		
-		Pixmap map = collisionMap.getTextureData().consumePixmap();
-		
-		return new Color(map.getPixel(x, y));
+	private Color getPixelColor(float f, float g) {
+		return new Color(collisionPixmap.getPixel((int) f, (int) g));
 	}
 	
 	@Override
@@ -382,7 +402,7 @@ public class Track1 implements Screen {
 		playerCarTex = game.mgr.get("img/car1.png", Texture.class);
 		AICarTex = game.mgr.get("img/car2.png", Texture.class);
 		plasmaBulletTex = game.mgr.get("img/plasma_bullet.png", Texture.class);
-		collisionMap = game.mgr.get("img/collision.png", Texture.class);
+		collision = game.mgr.get("img/collision.png", Texture.class);
 	}
 
 }

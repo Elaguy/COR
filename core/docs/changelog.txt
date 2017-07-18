@@ -42,3 +42,8 @@ ALPHA STAGE
 6. Plasma bullets (mostly) align to the cannon no matter the playerCar's
 rotation, but when turning sharply and at higher speeds the bullets offset
 by a certain distance eventually, for some reason
+7. Previous bug fixed (as far as I know)
+8. Track collision FINALLY implemented via collision color map
+
+Version 0.5a
+---------------------------
