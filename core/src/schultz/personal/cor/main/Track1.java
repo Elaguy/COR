@@ -205,24 +205,24 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 			
-		game.shape.circle(playerCar.getMidXPos(), playerCar.getMidYPos(), 5);
+//		game.shape.circle(playerCar.getMidXPos(), playerCar.getMidYPos(), 5);
 		
-		game.shape.circle(gunPos.x, gunPos.y, 4);
-		game.shape.circle(rearPos.x, rearPos.y, 4);
-		
-		for(int i = 0; i < boxes.size(); i++) {
-			Box current = boxes.get(i);
-			
-			for(int j = 0; j < current.getPoints().length; j++) {
-				game.shape.circle(current.getPoints()[j].x, current.getPoints()[j].y, 5);
-				
-				if(j < current.getPoints().length-1) 
-					game.shape.line(current.getPoints()[j], current.getPoints()[j+1]);
-				
-				else
-					game.shape.line(current.getPoints()[j], current.getPoints()[0]);
-			}
-		}
+//		game.shape.circle(gunPos.x, gunPos.y, 4);
+//		game.shape.circle(rearPos.x, rearPos.y, 4);
+//		
+//		for(int i = 0; i < boxes.size(); i++) {
+//			Box current = boxes.get(i);
+//			
+//			for(int j = 0; j < current.getPoints().length; j++) {
+//				game.shape.circle(current.getPoints()[j].x, current.getPoints()[j].y, 5);
+//				
+//				if(j < current.getPoints().length-1) 
+//					game.shape.line(current.getPoints()[j], current.getPoints()[j+1]);
+//				
+//				else
+//					game.shape.line(current.getPoints()[j], current.getPoints()[0]);
+//			}
+//		}
 	
 		game.shape.end();
 		
