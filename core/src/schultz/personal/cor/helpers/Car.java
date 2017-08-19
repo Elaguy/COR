@@ -1,15 +1,16 @@
 package schultz.personal.cor.helpers;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 
 public class Car {
 	
 	private Sprite car;
 	private float speed;
-	private Box boundBox = null;
 	private float midXPos; // the X pos of the car, but in the middle of the car
 	private float midYPos;
+	private Polygon boundPoly; // the polygon associated with this car object
 	
 	public Car(Sprite car) {
 		this.car = car;
@@ -39,12 +40,9 @@ public class Car {
 		midXPos = car.getX() + car.getOriginX();
 		midYPos = car.getY() + car.getOriginY();
 		
-		if(boundBox != null)
-			boundBox.translate(vel.x, vel.y);
-	}
-	
-	public void setBoundBox(Box boundBox) {
-		this.boundBox = boundBox;
+		if(boundPoly != null) {
+			boundPoly.translate(vel.x, vel.y);
+		}
 	}
 	
 	public Sprite getSprite() {
@@ -65,5 +63,13 @@ public class Car {
 	
 	public float getMidYPos() {
 		return midYPos;
+	}
+	
+	public void setBoundPoly(Polygon poly) {
+		this.boundPoly = poly;
+	}
+	
+	public Polygon getBoundPoly() {
+		return boundPoly;
 	}
 }

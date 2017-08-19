@@ -11,8 +11,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-import schultz.personal.cor.helpers.Box;
 import schultz.personal.cor.helpers.Car;
 import schultz.personal.cor.helpers.PlasmaBullet;
 import schultz.personal.cor.helpers.Waypoint;
@@ -27,7 +27,7 @@ public class Track1 implements Screen {
 	private ArrayList<Car> cars;
 	private ArrayList<Waypoint> waypoints;
 	private ArrayList<PlasmaBullet> pBullets;
-	private ArrayList<Box> boxes;
+	private ArrayList<Polygon> polys;
 	
 	private Waypoint current;
 	
@@ -48,8 +48,6 @@ public class Track1 implements Screen {
 	private Vector2 gunPos;
 	private Vector2 rearPos;
 	
-	private Box playerBox;
-	
 	private float trackX;
 	private float trackY;
 	
@@ -59,7 +57,9 @@ public class Track1 implements Screen {
 	
 	private float totalDt; // used to add up delta for bullet timer
 	
-	private Pixmap collisionPixmap;
+	private Pixmap collisionPixmap; // used for collision map so playerCar doesn't run off the track
+	
+	private Polygon playerPoly;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -74,7 +74,7 @@ public class Track1 implements Screen {
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
 		pBullets = new ArrayList<PlasmaBullet>();
-		boxes = new ArrayList<Box>();
+		polys = new ArrayList<Polygon>();
 		
 		playerCarSprite = new Sprite(playerCarTex);
 		
@@ -89,6 +89,17 @@ public class Track1 implements Screen {
 		playerCar = new Car(playerCarSprite); // 'PC' = playerCar
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
+		
+		playerPoly = new Polygon(new float[] { playerCarSprite.getX(), playerCarSprite.getY(),
+				playerCarSprite.getX(), playerCarSprite.getY() + playerCarSprite.getHeight(),
+				playerCarSprite.getX() + playerCarSprite.getWidth(), playerCarSprite.getY() + playerCarSprite.getHeight(),
+				playerCarSprite.getX() + playerCarSprite.getWidth(), playerCarSprite.getY()});
+		
+		playerPoly.setOrigin(playerCar.getMidXPos(), playerCar.getMidYPos());
+		
+		playerCar.setBoundPoly(playerPoly);
+		
+		polys.add(playerPoly);
 		
 		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
 		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
@@ -108,6 +119,17 @@ public class Track1 implements Screen {
 			aiSprite.setY(track.getY() + (track.getHeight()/2 - 1120));
 			
 			cars.add(new Car(aiSprite));
+			
+			Polygon aiPoly = new Polygon(new float[] { aiSprite.getX(), aiSprite.getY(),
+					aiSprite.getX(), aiSprite.getY() + aiSprite.getHeight(),
+					aiSprite.getX() + aiSprite.getWidth(), aiSprite.getY() + aiSprite.getHeight(),
+					aiSprite.getX() + aiSprite.getWidth(), aiSprite.getY()});
+			
+			aiPoly.setOrigin(cars.get(i).getMidXPos(), cars.get(i).getMidYPos());
+			
+			cars.get(i).setBoundPoly(aiPoly);
+			
+			polys.add(aiPoly);
 		}
 		
 		// Default waypoints for the track
@@ -125,12 +147,6 @@ public class Track1 implements Screen {
 		trackY = 0;
 		
 		track.setPosition(trackX, trackY);
-		
-		playerBox = new Box(playerCarSprite.getWidth()*0.8f, playerCarSprite.getHeight()*0.8f, playerCar);
-		
-		boxes.add(playerBox);
-		
-		playerCar.setBoundBox(playerBox);
 		
 		collision.getTextureData().prepare();
 		
@@ -155,7 +171,7 @@ public class Track1 implements Screen {
 		acc = 0.2f; // top speed (default friction): 19.8
 		friction = 0.01f;
 		
-		aiAcc = 0.15f; // top speed (default friction): 14.85
+		aiAcc = 0.0f; // top speed (default friction): 9.9
 		
 //		Color c = getPixelColor(172, 2573);
 //		
@@ -199,11 +215,14 @@ public class Track1 implements Screen {
 		
 		game.batch.end();
 		
-		game.shape.begin(ShapeType.Filled);
+		game.shape.begin(ShapeType.Line);
 		
 		game.shape.setProjectionMatrix(cam.combined);
 		
 		game.shape.setColor(Color.WHITE);
+		
+		for(int i = 0; i < polys.size(); i++)
+			game.shape.polygon(polys.get(i).getTransformedVertices());
 			
 //		game.shape.circle(playerCar.getMidXPos(), playerCar.getMidYPos(), 5);
 		
@@ -249,6 +268,8 @@ public class Track1 implements Screen {
 	}
 
 	private void updatePlayerCar() {
+		int rotateAmt = 3;
+		
 		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			playerCar.setSpeed(playerCar.getSpeed() - acc);
 		}
@@ -258,13 +279,13 @@ public class Track1 implements Screen {
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			playerCar.getSprite().rotate(3);
-			playerBox.rotate(3);
+			playerCar.getSprite().rotate(rotateAmt);
+			playerCar.getBoundPoly().rotate(rotateAmt);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			playerCar.getSprite().rotate(-3);
-			playerBox.rotate(-3);
+			playerCar.getSprite().rotate(-rotateAmt);
+			playerCar.getBoundPoly().rotate(-rotateAmt);
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {	
