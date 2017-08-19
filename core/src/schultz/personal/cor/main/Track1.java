@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 import schultz.personal.cor.helpers.Car;
@@ -61,6 +62,8 @@ public class Track1 implements Screen {
 	
 	private Polygon playerPoly;
 	
+	private Intersector intersector;
+	
 	public Track1(CORGame game) {
 		this.game = game;
 		
@@ -96,6 +99,7 @@ public class Track1 implements Screen {
 				playerCarSprite.getX() + playerCarSprite.getWidth(), playerCarSprite.getY()});
 		
 		playerPoly.setOrigin(playerCar.getMidXPos(), playerCar.getMidYPos());
+		playerPoly.scale(-0.1f);
 		
 		playerCar.setBoundPoly(playerPoly);
 		
@@ -126,6 +130,7 @@ public class Track1 implements Screen {
 					aiSprite.getX() + aiSprite.getWidth(), aiSprite.getY()});
 			
 			aiPoly.setOrigin(cars.get(i).getMidXPos(), cars.get(i).getMidYPos());
+			aiPoly.scale(-0.1f);
 			
 			cars.get(i).setBoundPoly(aiPoly);
 			
@@ -152,6 +157,8 @@ public class Track1 implements Screen {
 		
 		collisionPixmap = collision.getTextureData().consumePixmap();
 		
+		intersector = new Intersector();
+		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
@@ -171,7 +178,7 @@ public class Track1 implements Screen {
 		acc = 0.2f; // top speed (default friction): 19.8
 		friction = 0.01f;
 		
-		aiAcc = 0.0f; // top speed (default friction): 9.9
+		aiAcc = 0.1f; // top speed (default friction): 9.9
 		
 //		Color c = getPixelColor(172, 2573);
 //		
@@ -326,6 +333,8 @@ public class Track1 implements Screen {
 		
 		car.getSprite().setRotation(wp.getDist().angle());
 		
+		car.getBoundPoly().setRotation(car.getSprite().getRotation());
+		
 		//System.out.println(car.getSprite().getRotation());
 			
 		if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
@@ -364,6 +373,10 @@ public class Track1 implements Screen {
 		
 		if(!(getPixelColor(rearPos.x, background.getHeight() - rearPos.y).equals(Color.GREEN))) {
 			playerCar.setSpeed(-2);
+		}
+		
+		if(intersector.overlapConvexPolygons(playerPoly, polys.get(1))) {
+			playerCar.setSpeed(0);
 		}
 	}
 	
