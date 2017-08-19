@@ -7,4 +7,4 @@ Written in Java with LibGDX.
 
 The current version is 0.4a (Alpha).
 
-![Black hole screenshot](/home/elaguy/Programming/'Java Projects'/libgdxProjects/COR/cor/assets/screenshots/black_hole.png "Black hole screenshot")
+![Black hole screenshot](https://github.com/Elaguy/COR/blob/master/core/assets/screenshots/black_hole.png "Black hole screenshot")
