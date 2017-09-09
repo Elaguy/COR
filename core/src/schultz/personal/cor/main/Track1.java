@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -64,6 +65,8 @@ public class Track1 implements Screen {
 	
 	private Intersector intersector;
 	
+	private Music race1;
+	
 	public Track1(CORGame game) {
 		this.game = game;
 		
@@ -99,7 +102,7 @@ public class Track1 implements Screen {
 				playerCarSprite.getX() + playerCarSprite.getWidth(), playerCarSprite.getY()});
 		
 		playerPoly.setOrigin(playerCar.getMidXPos(), playerCar.getMidYPos());
-		playerPoly.scale(-0.1f);
+		playerPoly.scale(-0.2f);
 		
 		playerCar.setBoundPoly(playerPoly);
 		
@@ -130,7 +133,7 @@ public class Track1 implements Screen {
 					aiSprite.getX() + aiSprite.getWidth(), aiSprite.getY()});
 			
 			aiPoly.setOrigin(cars.get(i).getMidXPos(), cars.get(i).getMidYPos());
-			aiPoly.scale(-0.1f);
+			aiPoly.scale(-0.2f);
 			
 			cars.get(i).setBoundPoly(aiPoly);
 			
@@ -159,6 +162,9 @@ public class Track1 implements Screen {
 		
 		intersector = new Intersector();
 		
+		race1.setLooping(true);
+		race1.play();
+		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
@@ -179,10 +185,6 @@ public class Track1 implements Screen {
 		friction = 0.01f;
 		
 		aiAcc = 0.1f; // top speed (default friction): 9.9
-		
-//		Color c = getPixelColor(172, 2573);
-//		
-//		System.out.println(c.equals(Color.RED));
 	}
 
 	@Override
@@ -375,8 +377,16 @@ public class Track1 implements Screen {
 			playerCar.setSpeed(-2);
 		}
 		
-		if(intersector.overlapConvexPolygons(playerPoly, polys.get(1))) {
-			playerCar.setSpeed(0);
+//		if(intersector.overlapConvexPolygons(playerPoly, polys.get(1))) {
+//			playerCar.setSpeed(5);
+//			cars.get(1).setSpeed(-5);
+//		}
+		
+		for(int i = 0; i < polys.size()-1; i++) {
+			if(intersector.overlapConvexPolygons(polys.get(i), polys.get(i+1))) {
+				cars.get(i).setSpeed(5);
+				cars.get(i+1).setSpeed(-5);
+			}
 		}
 	}
 	
@@ -437,6 +447,7 @@ public class Track1 implements Screen {
 		AICarTex = game.mgr.get("img/car2.png", Texture.class);
 		plasmaBulletTex = game.mgr.get("img/plasma_bullet.png", Texture.class);
 		collision = game.mgr.get("img/collision.png", Texture.class);
+		race1 = game.mgr.get("audio/Rhinoceros.mp3", Music.class);
 	}
 
 }

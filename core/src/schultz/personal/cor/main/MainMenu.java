@@ -2,6 +2,7 @@ package schultz.personal.cor.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
@@ -28,6 +29,8 @@ public class MainMenu implements Screen {
 	private UiButton startButton;
 	private UiButton quitButton;
 	
+	private Music menu1;
+	
 	public MainMenu(CORGame game) {
 		this.game = game;
 		
@@ -48,6 +51,9 @@ public class MainMenu implements Screen {
 		ui.addUiText(gameTitle);
 		
 		ui.calculateElements();
+		
+		menu1.setLooping(true);
+		menu1.play();
 	}
 
 	@Override
@@ -111,6 +117,7 @@ public class MainMenu implements Screen {
 
 								@Override
 								public void run() {
+									menu1.stop();
 									game.setScreen(new Track1(game));
 								}
 								
@@ -175,6 +182,7 @@ public class MainMenu implements Screen {
 		button = game.mgr.get("img/button.png", Texture.class);
 		buttonSelected = game.mgr.get("img/button_selected.png", Texture.class);
 		buttonPressed = game.mgr.get("img/button_pressed.png", Texture.class);
+		menu1 = game.mgr.get("audio/Unwritten_Return.mp3", Music.class);
 	}
 
 }

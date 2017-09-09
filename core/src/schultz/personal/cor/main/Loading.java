@@ -3,6 +3,7 @@ package schultz.personal.cor.main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -104,6 +105,8 @@ public class Loading implements Screen {
 		game.mgr.load("img/car2.png", Texture.class);
 		game.mgr.load("img/plasma_bullet.png", Texture.class);
 		game.mgr.load("img/collision.png", Texture.class);
+		game.mgr.load("audio/Rhinoceros.mp3", Music.class);
+		game.mgr.load("audio/Unwritten_Return.mp3", Music.class);
 	}
 
 }
