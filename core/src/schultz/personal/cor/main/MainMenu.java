@@ -52,8 +52,8 @@ public class MainMenu implements Screen {
 		
 		ui.calculateElements();
 		
-		menu1.setLooping(true);
-		menu1.play();
+//		menu1.setLooping(true);
+//		menu1.play();
 	}
 
 	@Override

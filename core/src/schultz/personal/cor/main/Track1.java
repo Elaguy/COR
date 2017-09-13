@@ -29,7 +29,8 @@ public class Track1 implements Screen {
 	private ArrayList<Car> cars;
 	private ArrayList<Waypoint> waypoints;
 	private ArrayList<PlasmaBullet> pBullets;
-	private ArrayList<Polygon> polys;
+	private ArrayList<Polygon> carPolys;
+	private ArrayList<Polygon> bulletPolys;
 	
 	private Waypoint current;
 	
@@ -80,7 +81,8 @@ public class Track1 implements Screen {
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
 		pBullets = new ArrayList<PlasmaBullet>();
-		polys = new ArrayList<Polygon>();
+		carPolys = new ArrayList<Polygon>();
+		bulletPolys = new ArrayList<Polygon>();
 		
 		playerCarSprite = new Sprite(playerCarTex);
 		
@@ -102,11 +104,11 @@ public class Track1 implements Screen {
 				playerCarSprite.getX() + playerCarSprite.getWidth(), playerCarSprite.getY()});
 		
 		playerPoly.setOrigin(playerCar.getMidXPos(), playerCar.getMidYPos());
-		playerPoly.scale(-0.2f);
+		playerPoly.scale(-0.3f);
 		
 		playerCar.setBoundPoly(playerPoly);
 		
-		polys.add(playerPoly);
+		carPolys.add(playerPoly);
 		
 		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
 		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
@@ -133,11 +135,11 @@ public class Track1 implements Screen {
 					aiSprite.getX() + aiSprite.getWidth(), aiSprite.getY()});
 			
 			aiPoly.setOrigin(cars.get(i).getMidXPos(), cars.get(i).getMidYPos());
-			aiPoly.scale(-0.2f);
+			aiPoly.scale(-0.3f);
 			
 			cars.get(i).setBoundPoly(aiPoly);
 			
-			polys.add(aiPoly);
+			carPolys.add(aiPoly);
 		}
 		
 		// Default waypoints for the track
@@ -162,15 +164,15 @@ public class Track1 implements Screen {
 		
 		intersector = new Intersector();
 		
-		race1.setLooping(true);
-		race1.play();
+//		race1.setLooping(true);
+//		race1.play();
 		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
 		 * b/c of friction (tested in-game)
 		 * 
-		 * So because 19.8 / 0.2 = 99,
+		 * Because 19.8 / 0.2 = 99,
 		 * acc * 99 = top speed
 		 * (0.2 * 99 = 19.8)
 		 * 
@@ -230,27 +232,11 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 		
-		for(int i = 0; i < polys.size(); i++)
-			game.shape.polygon(polys.get(i).getTransformedVertices());
-			
-//		game.shape.circle(playerCar.getMidXPos(), playerCar.getMidYPos(), 5);
+		for(int i = 0; i < carPolys.size(); i++)
+			game.shape.polygon(carPolys.get(i).getTransformedVertices());
 		
-//		game.shape.circle(gunPos.x, gunPos.y, 4);
-//		game.shape.circle(rearPos.x, rearPos.y, 4);
-//		
-//		for(int i = 0; i < boxes.size(); i++) {
-//			Box current = boxes.get(i);
-//			
-//			for(int j = 0; j < current.getPoints().length; j++) {
-//				game.shape.circle(current.getPoints()[j].x, current.getPoints()[j].y, 5);
-//				
-//				if(j < current.getPoints().length-1) 
-//					game.shape.line(current.getPoints()[j], current.getPoints()[j+1]);
-//				
-//				else
-//					game.shape.line(current.getPoints()[j], current.getPoints()[0]);
-//			}
-//		}
+		for(int i = 0; i < bulletPolys.size(); i++)
+			game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
 	
 		game.shape.end();
 		
@@ -272,8 +258,6 @@ public class Track1 implements Screen {
 		
 		if(totalDt > 0.6)
 			totalDt = 0;
-		
-//		System.out.println("(" + playerCar.getMidXPos() + ", " + playerCar.getMidYPos() + ")");
 	}
 
 	private void updatePlayerCar() {
@@ -298,8 +282,9 @@ public class Track1 implements Screen {
 		}
 		
 		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {	
-			if(totalDt > 0.5)
-				pBullets.add(new PlasmaBullet(new Sprite(plasmaBulletTex), playerCar, this));
+			if(totalDt > 0.5) {
+				createPlasmaBullet();
+			}
 		}
 		
 		if(Math.abs(playerCar.getSpeed()) < 0.1) {
@@ -364,6 +349,8 @@ public class Track1 implements Screen {
 		for(int i = 0; i < pBullets.size(); i++) {
 			PlasmaBullet current = pBullets.get(i);
 			
+			current.getBoundPoly().setRotation(current.getSprite().getRotation());
+			
 			current.move();
 		}
 	}
@@ -377,13 +364,8 @@ public class Track1 implements Screen {
 			playerCar.setSpeed(-2);
 		}
 		
-//		if(intersector.overlapConvexPolygons(playerPoly, polys.get(1))) {
-//			playerCar.setSpeed(5);
-//			cars.get(1).setSpeed(-5);
-//		}
-		
-		for(int i = 0; i < polys.size()-1; i++) {
-			if(intersector.overlapConvexPolygons(polys.get(i), polys.get(i+1))) {
+		for(int i = 0; i < carPolys.size()-1; i++) {
+			if(intersector.overlapConvexPolygons(carPolys.get(i), carPolys.get(i+1))) {
 				cars.get(i).setSpeed(5);
 				cars.get(i+1).setSpeed(-5);
 			}
@@ -413,6 +395,23 @@ public class Track1 implements Screen {
 	 */
 	private Color getPixelColor(float f, float g) {
 		return new Color(collisionPixmap.getPixel((int) f, (int) g));
+	}
+	
+	private void createPlasmaBullet() {
+		Sprite bulletSprite = new Sprite(plasmaBulletTex);
+		PlasmaBullet pBullet = new PlasmaBullet(bulletSprite, playerCar, this);
+		
+		Polygon bulletPoly = new Polygon(new float[] { bulletSprite.getX(), bulletSprite.getY(),
+				bulletSprite.getX(), bulletSprite.getY() + bulletSprite.getHeight(),
+				bulletSprite.getX() + bulletSprite.getWidth(), bulletSprite.getY() + bulletSprite.getHeight(),
+				bulletSprite.getX() + bulletSprite.getWidth(), bulletSprite.getY()});
+		
+		bulletPoly.setOrigin(pBullet.getMidPos().x, pBullet.getMidPos().y);
+		
+		pBullet.setBoundPoly(bulletPoly);
+		
+		pBullets.add(pBullet);
+		bulletPolys.add(bulletPoly);
 	}
 	
 	@Override

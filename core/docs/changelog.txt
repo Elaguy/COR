@@ -49,3 +49,4 @@ by a certain distance eventually, for some reason
 Version 0.5a
 ----------------------------
 1. Main menu music and track1 music added
+2. Added Polygons to PlasmaBullets
