@@ -309,7 +309,7 @@ public class Track1 implements Screen {
 		rearPos.x = getRotatedX(initRearPos);
 		rearPos.y = getRotatedY(initRearPos);
 		
-		checkPlayerCollisions();
+		checkCollisions();
 		
 		cam.update();
 	}
@@ -355,7 +355,7 @@ public class Track1 implements Screen {
 		}
 	}
 	
-	private void checkPlayerCollisions() {
+	private void checkCollisions() {
 		if(!(getPixelColor(gunPos.x, background.getHeight() - gunPos.y).equals(Color.GREEN))) {
 			playerCar.setSpeed(2);
 		}
@@ -368,6 +368,14 @@ public class Track1 implements Screen {
 			if(intersector.overlapConvexPolygons(carPolys.get(i), carPolys.get(i+1))) {
 				cars.get(i).setSpeed(5);
 				cars.get(i+1).setSpeed(-5);
+			}
+		}
+		
+		for(int i = 0; i < bulletPolys.size(); i++) {
+			for(int j = 1; j < carPolys.size(); j++) {
+				if(intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j))) {
+					System.out.println("BULLET HIT!");
+				}
 			}
 		}
 	}
