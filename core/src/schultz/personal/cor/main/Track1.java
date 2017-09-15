@@ -37,7 +37,9 @@ public class Track1 implements Screen {
 	private Texture background;
 	private Texture trackTex;
 	private Texture playerCarTex;
+	private Texture playerCarHit;
 	private Texture AICarTex;
+	private Texture AICarHit;
 	private Texture plasmaBulletTex;
 	private Texture collision;
 	
@@ -57,6 +59,7 @@ public class Track1 implements Screen {
 	private float acc; // acceleration for player
 	private float aiAcc; // acceleration for ai
 	private float friction;
+	private float damageRate; // HP damage rate for PlasmaBullets and Mines
 	
 	private float totalDt; // used to add up delta for bullet timer
 	
@@ -78,6 +81,13 @@ public class Track1 implements Screen {
 		
 		numAiCars = 1;
 		
+		/*
+		 * The carPolys arraylist is ordered according to the cars arraylist,
+		 * in order to identify a car associated with a polygon. I was too
+		 * lazy to write a better system.
+		 * 
+		 * == Modify the arraylists at your own risk. ==
+		 */
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
 		pBullets = new ArrayList<PlasmaBullet>();
@@ -94,7 +104,7 @@ public class Track1 implements Screen {
 		playerCarSprite.setPosition(track.getX() + (track.getWidth()/2 + 550), 
 				(float) (track.getY() + (track.getHeight()/2 - 1198.65)));
 		
-		playerCar = new Car(playerCarSprite); // 'PC' = playerCar
+		playerCar = new Car(playerCarSprite, this); // 'PC' = playerCar
 		
 		cars.add(playerCar); // index 0 of cars is always playerCar
 		
@@ -127,7 +137,7 @@ public class Track1 implements Screen {
 			aiSprite.setX(track.getX() + (track.getWidth()/2 + 550));
 			aiSprite.setY(track.getY() + (track.getHeight()/2 - 1120));
 			
-			cars.add(new Car(aiSprite));
+			cars.add(new Car(aiSprite, this));
 			
 			Polygon aiPoly = new Polygon(new float[] { aiSprite.getX(), aiSprite.getY(),
 					aiSprite.getX(), aiSprite.getY() + aiSprite.getHeight(),
@@ -184,9 +194,10 @@ public class Track1 implements Screen {
 		 * do the initial test in-game first)
 		 */
 		acc = 0.2f; // top speed (default friction): 19.8
-		friction = 0.01f;
-		
 		aiAcc = 0.1f; // top speed (default friction): 9.9
+		friction = 0.01f;
+		damageRate = 0.5f;
+		
 	}
 
 	@Override
@@ -244,20 +255,19 @@ public class Track1 implements Screen {
 	}
 	
 	private void update(float delta) {		
-		if(current.getCompleted()) {			
-			if((waypoints.indexOf(current) + 1) < waypoints.size()) {
-				current = waypoints.get(waypoints.indexOf(current)+1); // go to next waypoint
-			}
-		}
-		
+		updateWaypoints();
 		updatePlayerCar();
 		updateAICars();
 		updatePlasmaBullets();
-		
-		totalDt += delta;
-		
-		if(totalDt > 0.6)
-			totalDt = 0;
+		checkCollisions();
+		updateBulletTimer(delta);
+	}
+	
+	private void updateWaypoints() {
+		if(current.getCompleted()) {			
+			if((waypoints.indexOf(current) + 1) < waypoints.size())
+				current = waypoints.get(waypoints.indexOf(current)+1); // go to next waypoint
+		}
 	}
 
 	private void updatePlayerCar() {
@@ -309,40 +319,42 @@ public class Track1 implements Screen {
 		rearPos.x = getRotatedX(initRearPos);
 		rearPos.y = getRotatedY(initRearPos);
 		
-		checkCollisions();
-		
 		cam.update();
 	}
 	
 	private void updateAICars() {
 		Waypoint wp = current;
+		
 		Car car = wp.getTargetCar();
 		
-		car.getSprite().setRotation(wp.getDist().angle());
-		
-		car.getBoundPoly().setRotation(car.getSprite().getRotation());
-		
-		//System.out.println(car.getSprite().getRotation());
+		if(!car.getIsDestroyed()) {
+			car.getSprite().setRotation(wp.getDist().angle());
 			
-		if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
-			car.setSpeed(car.getSpeed() - aiAcc);
+			car.getBoundPoly().setRotation(car.getSprite().getRotation());
+				
+			if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
+				//car.setSpeed(car.getSpeed() - aiAcc);
+			}
+				
+			/*
+			 * If car is set to stop at this waypoint OR this waypoint is the last in the list AND
+			 * the car's distance meets the "threshold", stop the car (this prevents strange glitches)
+			 */
+			if((Math.floor(wp.getAbsDist().x) < 10 && Math.floor(wp.getAbsDist().y) < 10)) {
+				if(wp.getStopHere() || waypoints.indexOf(wp) == (waypoints.size() - 1))
+					car.setSpeed(0);
+				
+				wp.setCompleted(true);
+			}
+			
+			car.setSpeed(car.getSpeed() * (1 - friction));
+				
+			car.move();
+			
+			car.checkHP();
+			
+			cam.update();
 		}
-			
-		/*
-		 * If car is set to stop at this waypoint OR this waypoint is the last in the list AND
-		 * the car's distance meets the "threshold", stop the car (this prevents strange glitches)
-		 */
-		if((Math.floor(wp.getAbsDist().x) < 10 && Math.floor(wp.getAbsDist().y) < 10)) {
-			if(wp.getStopHere() || waypoints.indexOf(wp) == (waypoints.size() - 1))
-				car.setSpeed(0);
-			
-			wp.setCompleted(true);
-		}
-		
-		car.setSpeed(car.getSpeed() * (1 - friction));
-			
-		car.move();
-		cam.update();
 	}
 	
 	private void updatePlasmaBullets() {
@@ -372,12 +384,24 @@ public class Track1 implements Screen {
 		}
 		
 		for(int i = 0; i < bulletPolys.size(); i++) {
-			for(int j = 1; j < carPolys.size(); j++) {
-				if(intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j))) {
-					System.out.println("BULLET HIT!");
+			for(int j = 0; j < carPolys.size(); j++) {
+				if(intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j)) && j > 0) {
+					cars.get(j).setHP(cars.get(j).getHP() - 0.5f);
+					cars.get(j).getSprite().setTexture(AICarHit);
+					//System.out.println("AiCar HP: " + cars.get(j).getHP());
 				}
+				
+				else if(j > 0) // "j > 0": do not affect playerCar
+					cars.get(j).getSprite().setTexture(AICarTex);
 			}
 		}
+	}
+	
+	private void updateBulletTimer(float delta) {
+		totalDt += delta;
+		
+		if(totalDt > 0.6)
+			totalDt = 0;
 	}
 	
 	/*
@@ -422,6 +446,14 @@ public class Track1 implements Screen {
 		bulletPolys.add(bulletPoly);
 	}
 	
+	public ArrayList<Car> getCars() {
+		return cars;
+	}
+
+	public ArrayList<Polygon> getCarPolys() {
+		return carPolys;
+	}
+	
 	@Override
 	public void resize(int width, int height) {
 		game.viewport.update(width, height);
@@ -451,7 +483,9 @@ public class Track1 implements Screen {
 		background = game.mgr.get("img/backgrnd_1.png", Texture.class);
 		trackTex = game.mgr.get("img/track1.png", Texture.class);
 		playerCarTex = game.mgr.get("img/car1.png", Texture.class);
+		playerCarHit = game.mgr.get("img/car1_hit.png", Texture.class);
 		AICarTex = game.mgr.get("img/car2.png", Texture.class);
+		AICarHit = game.mgr.get("img/car2_hit.png", Texture.class);
 		plasmaBulletTex = game.mgr.get("img/plasma_bullet.png", Texture.class);
 		collision = game.mgr.get("img/collision.png", Texture.class);
 		race1 = game.mgr.get("audio/Rhinoceros.mp3", Music.class);

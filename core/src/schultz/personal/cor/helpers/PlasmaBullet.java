@@ -33,7 +33,7 @@ public class PlasmaBullet {
 		this.midPos = new Vector2(pBullet.getX() + pBullet.getOriginX(), pBullet.getY() + pBullet.getOriginY());
 		
 		this.track = track;
-		this.speed = -5;
+		this.speed = -20;
 		
 		pBullet.setRotation(boundCar.getSprite().getRotation());
 	}
@@ -60,6 +60,15 @@ public class PlasmaBullet {
 		if(boundPoly != null) {
 			boundPoly.translate(vel.x, vel.y);
 		}
+	}
+	
+	public void setSpeed(float speed) {
+		this.speed = speed;
+	}
+	
+	public float getSpeed() {
+		return speed;
+		
 	}
 	
 	public Vector2 getMidPos() {
