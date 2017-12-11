@@ -1,0 +1,11 @@
+COR To-do List
+==============
+* Not ranked in order of importance, but in order of planned completion
+
+** (COMPLETED) ** 1. Animation for the AiCar(s) explosion/destruction - 0.5a
+2. Delete the PlasmaBullets once they reach a certain distance - 0.5a
+3. AiCar ability to lay mines - 0.6a
+4. Ability for PlayerCar to be destroyed/disappear - 0.7a
+5. Animation for the PlayerCar explosion/destruction - 0.8a
+6. Finish line and laps - 0.9a
+7. Winning and losing GUI (Planned completion of game development) - 1.0r

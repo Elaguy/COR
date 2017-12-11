@@ -109,6 +109,7 @@ public class Loading implements Screen {
 		game.mgr.load("img/car2_hit.png", Texture.class);
 		game.mgr.load("audio/Rhinoceros.mp3", Music.class);
 		game.mgr.load("audio/Unwritten_Return.mp3", Music.class);
+		game.mgr.load("img/explosion_sheet.png", Texture.class);
 	}
 
 }

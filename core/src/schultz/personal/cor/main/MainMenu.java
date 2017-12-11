@@ -42,9 +42,9 @@ public class MainMenu implements Screen {
 		
 		mousePos = new Vector3();
 		
-		gameTitle = new UiText("Centripetal Orbital Racers", 1,game);
-		startButton = new UiButton(button, "Start Game", 5,game);
-		quitButton = new UiButton(button, "Quit Game", 5,game);
+		gameTitle = new UiText("Centripetal Orbital Racers", 1, game);
+		startButton = new UiButton(button, "Start Game", 5, game);
+		quitButton = new UiButton(button, "Quit Game", 5, game);
 		
 		ui.addUiButton(quitButton); // must flip order because actual rendering is
 		ui.addUiButton(startButton); // backward for some reason

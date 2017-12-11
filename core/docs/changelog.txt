@@ -3,7 +3,7 @@ CENTRIPETAL ORBITAL RACERS CHANGELOG
 
 Version 0.1i
 --------------------------
-IN-DEVELOPMENT STAGE
+ = IN-DEVELOPMENT STAGE =
 
 1. Game "shell/skeleton" written
 2. Loading screen completed
@@ -32,7 +32,7 @@ Version 0.2i - 0.3i
 
 Version 0.4a
 ---------------------------
-ALPHA STAGE
+= ALPHA STAGE =
 
 1. Cars are 'attached' to a waypoint
 2. Waypoint system is very buggy
@@ -52,3 +52,4 @@ Version 0.5a
 2. Added Polygons to PlasmaBullets
 3. Very basic PlasmaBullet collision detection with car polygons completed
 4. AICars are "destroyed" when their HP is 0 due to PlasmaBullets
+5. AICars now have an explosion animation when they are destroyed

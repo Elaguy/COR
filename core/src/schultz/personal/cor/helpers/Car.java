@@ -58,7 +58,6 @@ public class Car {
 		if(hp <= 0 && !isDestroyed) {
 			isDestroyed = true;
 			
-			track1.getCars().remove(this);
 			track1.getCarPolys().remove(this.boundPoly);
 		}
 	}

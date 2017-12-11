@@ -11,10 +11,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+
+import schultz.personal.cor.helpers.AnimationObj;
 import schultz.personal.cor.helpers.Car;
 import schultz.personal.cor.helpers.PlasmaBullet;
 import schultz.personal.cor.helpers.Waypoint;
@@ -70,6 +73,11 @@ public class Track1 implements Screen {
 	private Intersector intersector;
 	
 	private Music race1;
+	
+	private Texture explosionSheet;
+	private AnimationObj explosionAni;
+	
+	private float stateTime;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -177,6 +185,8 @@ public class Track1 implements Screen {
 //		race1.setLooping(true);
 //		race1.play();
 		
+		explosionAni = new AnimationObj(15, 5, 2, explosionSheet, false);
+		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
@@ -214,28 +224,12 @@ public class Track1 implements Screen {
 		
 		game.batch.setProjectionMatrix(cam.combined);
 		
-		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
-		game.batch.draw(track, trackX, trackY);
-		
-		for(int i = 0; i < pBullets.size(); i++) {
-			if(!pBullets.isEmpty()) {
-				PlasmaBullet current = pBullets.get(i);
-
-				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
-						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
-			}
-		}
-		
-		for(int i = 0; i < cars.size(); i++) {
-			if(!cars.isEmpty()) {
-				Car current = cars.get(i);
-				
-				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
-						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
-			}
-		}
+		drawTrackAndBackground();
+		drawCarsAndBullets();
 		
 		game.batch.end();
+		
+		//
 		
 		game.shape.begin(ShapeType.Line);
 		
@@ -243,11 +237,7 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 		
-		for(int i = 0; i < carPolys.size(); i++)
-			game.shape.polygon(carPolys.get(i).getTransformedVertices());
-		
-		for(int i = 0; i < bulletPolys.size(); i++)
-			game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
+		drawPolygons();
 	
 		game.shape.end();
 		
@@ -261,6 +251,48 @@ public class Track1 implements Screen {
 		updatePlasmaBullets();
 		checkCollisions();
 		updateBulletTimer(delta);
+		
+		System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
+	}
+	
+	private void drawTrackAndBackground() {
+		game.batch.draw(background, trackX, trackY, background.getWidth(), background.getHeight());
+		game.batch.draw(track, trackX, trackY);
+	}
+	
+	private void drawCarsAndBullets() {
+		for(int i = 0; i < pBullets.size(); i++) {
+			if(!pBullets.isEmpty()) {
+				PlasmaBullet current = pBullets.get(i);
+
+				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+			}
+		}
+		
+		if(!cars.isEmpty()) {
+			for(int i = 0; i < cars.size(); i++) {
+				Car current = cars.get(i);
+				
+				if(!cars.get(i).getIsDestroyed()) {
+					game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+							current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+				}
+				else {
+					game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
+							current.getMidYPos() - explosionAni.getSpriteHeight()/2);
+					explosionAni.update();
+				}
+			}
+		}
+	}
+	
+	private void drawPolygons() {
+		for(int i = 0; i < carPolys.size(); i++)
+			game.shape.polygon(carPolys.get(i).getTransformedVertices());
+		
+		for(int i = 0; i < bulletPolys.size(); i++)
+			game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
 	}
 	
 	private void updateWaypoints() {
@@ -489,6 +521,7 @@ public class Track1 implements Screen {
 		plasmaBulletTex = game.mgr.get("img/plasma_bullet.png", Texture.class);
 		collision = game.mgr.get("img/collision.png", Texture.class);
 		race1 = game.mgr.get("audio/Rhinoceros.mp3", Music.class);
+		explosionSheet = game.mgr.get("img/explosion_sheet.png", Texture.class);
 	}
 
 }
