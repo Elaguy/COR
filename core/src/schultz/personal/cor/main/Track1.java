@@ -396,6 +396,7 @@ public class Track1 implements Screen {
 			current.getBoundPoly().setRotation(current.getSprite().getRotation());
 			
 			current.move();
+			current.checkDist();
 		}
 	}
 	
@@ -484,6 +485,14 @@ public class Track1 implements Screen {
 
 	public ArrayList<Polygon> getCarPolys() {
 		return carPolys;
+	}
+	
+	public ArrayList<PlasmaBullet> getPBullets() {
+		return pBullets;
+	}
+	
+	public ArrayList<Polygon> getBulletPolys() {
+		return bulletPolys;
 	}
 	
 	@Override

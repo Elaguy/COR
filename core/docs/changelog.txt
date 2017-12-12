@@ -53,3 +53,4 @@ Version 0.5a
 3. Very basic PlasmaBullet collision detection with car polygons completed
 4. AICars are "destroyed" when their HP is 0 due to PlasmaBullets
 5. AICars now have an explosion animation when they are destroyed
+6. PlasmaBullets are deleted once they reach a certain distance

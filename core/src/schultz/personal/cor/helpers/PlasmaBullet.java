@@ -20,6 +20,8 @@ public class PlasmaBullet {
 	private Track1 track;
 	
 	private float speed;
+	private float dist;
+	private float distLimit;
 	
 	public PlasmaBullet(Sprite pBullet, Car boundCar, Track1 track) {
 		this.initGunPos = new Vector2(boundCar.getSprite().getX() + 22, boundCar.getSprite().getY() + 37);
@@ -33,7 +35,9 @@ public class PlasmaBullet {
 		this.midPos = new Vector2(pBullet.getX() + pBullet.getOriginX(), pBullet.getY() + pBullet.getOriginY());
 		
 		this.track = track;
-		this.speed = -20;
+		speed = -20;
+		dist = 0;
+		this.distLimit = 3000;
 		
 		pBullet.setRotation(boundCar.getSprite().getRotation());
 	}
@@ -59,6 +63,17 @@ public class PlasmaBullet {
 		
 		if(boundPoly != null) {
 			boundPoly.translate(vel.x, vel.y);
+		}
+		
+		dist += Math.abs(speed);
+		
+		System.out.println(dist);
+	}
+	
+	public void checkDist() {
+		if(dist >= distLimit) {
+			track.getPBullets().remove(this);
+			track.getBulletPolys().remove(this.boundPoly);
 		}
 	}
 	
