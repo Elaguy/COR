@@ -66,8 +66,6 @@ public class PlasmaBullet {
 		}
 		
 		dist += Math.abs(speed);
-		
-		System.out.println(dist);
 	}
 	
 	public void checkDist() {

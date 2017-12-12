@@ -59,6 +59,8 @@ public class Car {
 			isDestroyed = true;
 			
 			track1.getCarPolys().remove(this.boundPoly);
+			
+			track1.getExplosion().play();
 		}
 	}
 	

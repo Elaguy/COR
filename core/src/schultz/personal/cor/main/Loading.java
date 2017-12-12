@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -110,6 +111,8 @@ public class Loading implements Screen {
 		game.mgr.load("audio/Rhinoceros.mp3", Music.class);
 		game.mgr.load("audio/Unwritten_Return.mp3", Music.class);
 		game.mgr.load("img/explosion_sheet.png", Texture.class);
+		game.mgr.load("audio/plasmabullet.wav", Sound.class);
+		game.mgr.load("audio/explosion.mp3", Sound.class);
 	}
 
 }

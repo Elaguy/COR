@@ -1,17 +1,18 @@
 package schultz.personal.cor.main;
 
 import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
@@ -73,6 +74,8 @@ public class Track1 implements Screen {
 	private Intersector intersector;
 	
 	private Music race1;
+	private Sound pBulletSound;
+	private Sound explosion;
 	
 	private Texture explosionSheet;
 	private AnimationObj explosionAni;
@@ -182,8 +185,8 @@ public class Track1 implements Screen {
 		
 		intersector = new Intersector();
 		
-//		race1.setLooping(true);
-//		race1.play();
+		race1.setLooping(true);
+		race1.play();
 		
 		explosionAni = new AnimationObj(15, 5, 2, explosionSheet, false);
 		
@@ -237,7 +240,7 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 		
-		drawPolygons();
+		//drawPolygons();
 	
 		game.shape.end();
 		
@@ -365,7 +368,7 @@ public class Track1 implements Screen {
 			car.getBoundPoly().setRotation(car.getSprite().getRotation());
 				
 			if(wp.getAbsDist().x > 0 || wp.getAbsDist().y > 0) { // if car is not on waypoint, speed up
-				//car.setSpeed(car.getSpeed() - aiAcc);
+				car.setSpeed(car.getSpeed() - aiAcc);
 			}
 				
 			/*
@@ -477,6 +480,8 @@ public class Track1 implements Screen {
 		
 		pBullets.add(pBullet);
 		bulletPolys.add(bulletPoly);
+		
+		pBulletSound.play();
 	}
 	
 	public ArrayList<Car> getCars() {
@@ -493,6 +498,10 @@ public class Track1 implements Screen {
 	
 	public ArrayList<Polygon> getBulletPolys() {
 		return bulletPolys;
+	}
+	
+	public Sound getExplosion() {
+		return explosion;
 	}
 	
 	@Override
@@ -517,7 +526,8 @@ public class Track1 implements Screen {
 
 	@Override
 	public void dispose() {
-		
+		pBulletSound.dispose();
+		explosion.dispose();
 	}
 	
 	private void loadAssets() {
@@ -531,6 +541,8 @@ public class Track1 implements Screen {
 		collision = game.mgr.get("img/collision.png", Texture.class);
 		race1 = game.mgr.get("audio/Rhinoceros.mp3", Music.class);
 		explosionSheet = game.mgr.get("img/explosion_sheet.png", Texture.class);
+		pBulletSound = game.mgr.get("audio/plasmabullet.wav", Sound.class);
+		explosion = game.mgr.get("audio/explosion.mp3", Sound.class);
 	}
 
 }
