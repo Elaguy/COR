@@ -5,6 +5,6 @@ than anything though.
 
 Written in Java with LibGDX.
 
-The current version is 0.5a (Alpha).
+The current version is 0.7a (Alpha).
 
 ![Black hole screenshot](https://github.com/Elaguy/COR/blob/master/core/assets/screenshots/black_hole.png "Black hole screenshot")
