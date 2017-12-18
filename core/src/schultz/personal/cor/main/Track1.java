@@ -17,9 +17,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import schultz.personal.cor.helpers.AnimationObj;
 import schultz.personal.cor.helpers.Car;
+import schultz.personal.cor.helpers.LandMine;
 import schultz.personal.cor.helpers.PlasmaBullet;
 import schultz.personal.cor.helpers.Waypoint;
 
@@ -33,8 +35,10 @@ public class Track1 implements Screen {
 	private ArrayList<Car> cars;
 	private ArrayList<Waypoint> waypoints;
 	private ArrayList<PlasmaBullet> pBullets;
+	private ArrayList<LandMine> landMines;
 	private ArrayList<Polygon> carPolys;
 	private ArrayList<Polygon> bulletPolys;
+	private ArrayList<Polygon> landMinePolys;
 	
 	private Waypoint current;
 	
@@ -46,13 +50,15 @@ public class Track1 implements Screen {
 	private Texture AICarHit;
 	private Texture plasmaBulletTex;
 	private Texture collision;
+	private Texture explosionSheet;
+	private Texture landmineSheet;
 	
 	private Sprite playerCarSprite;
 	private Sprite aiCarSprite;
 	private Sprite track;
 	
 	private Car playerCar;
-	private Vector2 initGunPos; // initial gun and rear positions before rotation for collision detection
+	private Vector2 initGunPos; // initial gun and rear positions before rotation for collision detection for playerCar
 	private Vector2 initRearPos;
 	private Vector2 gunPos;
 	private Vector2 rearPos;
@@ -65,7 +71,8 @@ public class Track1 implements Screen {
 	private float friction;
 	private float damageRate; // HP damage rate for PlasmaBullets and Mines
 	
-	private float totalDt; // used to add up delta for bullet timer
+	private long startTimeBullets; // used in timer for PlasmaBullets
+	private long startTimeMines; // used in timer for LandMines
 	
 	private Pixmap collisionPixmap; // used for collision map so playerCar doesn't run off the track
 	
@@ -77,10 +84,8 @@ public class Track1 implements Screen {
 	private Sound pBulletSound;
 	private Sound explosion;
 	
-	private Texture explosionSheet;
 	private AnimationObj explosionAni;
-	
-	private float stateTime;
+	private AnimationObj landMineAni;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -102,8 +107,10 @@ public class Track1 implements Screen {
 		cars = new ArrayList<Car>();
 		waypoints = new ArrayList<Waypoint>();
 		pBullets = new ArrayList<PlasmaBullet>();
+		landMines = new ArrayList<LandMine>();
 		carPolys = new ArrayList<Polygon>();
 		bulletPolys = new ArrayList<Polygon>();
+		landMinePolys = new ArrayList<Polygon>();
 		
 		playerCarSprite = new Sprite(playerCarTex);
 		
@@ -189,6 +196,7 @@ public class Track1 implements Screen {
 		race1.play();
 		
 		explosionAni = new AnimationObj(15, 5, 2, explosionSheet, false);
+		landMineAni = new AnimationObj(5, 2, 1, landmineSheet, true);
 		
 		/*
 		 * Default acceleration is 0.2f,
@@ -209,7 +217,9 @@ public class Track1 implements Screen {
 		acc = 0.2f; // top speed (default friction): 19.8
 		aiAcc = 0.1f; // top speed (default friction): 9.9
 		friction = 0.01f;
-		damageRate = 0.5f;
+		damageRate = 1.5f;
+		startTimeBullets = 0;
+		startTimeMines = 0;
 		
 	}
 
@@ -229,11 +239,12 @@ public class Track1 implements Screen {
 		
 		drawTrackAndBackground();
 		drawCarsAndBullets();
+		drawLandMines();
 		
 		game.batch.end();
 		
-		//
-		
+		// \\
+
 		game.shape.begin(ShapeType.Line);
 		
 		game.shape.setProjectionMatrix(cam.combined);
@@ -253,9 +264,11 @@ public class Track1 implements Screen {
 		updateAICars();
 		updatePlasmaBullets();
 		checkCollisions();
-		updateBulletTimer(delta);
+		updateLandMines();
 		
-		System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
+		System.out.println(cars.get(1).getSpeed());
+		
+		//System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
 	}
 	
 	private void drawTrackAndBackground() {
@@ -281,11 +294,28 @@ public class Track1 implements Screen {
 					game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
 							current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
 				}
+				
 				else {
 					game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
 							current.getMidYPos() - explosionAni.getSpriteHeight()/2);
 					explosionAni.update();
 				}
+			}
+		}
+	}
+	
+	private void drawLandMines() {
+		for(int i = 0; i < landMines.size(); i++) {
+			LandMine current = landMines.get(i);
+			
+			if(!landMines.get(i).getIsDestroyed())
+				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+			
+			else {
+				game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
+						current.getMidYPos() - explosionAni.getSpriteHeight()/2);
+				explosionAni.update();
 			}
 		}
 	}
@@ -296,6 +326,9 @@ public class Track1 implements Screen {
 		
 		for(int i = 0; i < bulletPolys.size(); i++)
 			game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
+		
+		for(int i = 0; i < landMinePolys.size(); i++)
+			game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
 	}
 	
 	private void updateWaypoints() {
@@ -308,53 +341,59 @@ public class Track1 implements Screen {
 	private void updatePlayerCar() {
 		int rotateAmt = 3;
 		
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			playerCar.setSpeed(playerCar.getSpeed() - acc);
-		}
-		
-		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			playerCar.setSpeed(playerCar.getSpeed() + acc);
-		}
-		
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			playerCar.getSprite().rotate(rotateAmt);
-			playerCar.getBoundPoly().rotate(rotateAmt);
-		}
-		
-		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			playerCar.getSprite().rotate(-rotateAmt);
-			playerCar.getBoundPoly().rotate(-rotateAmt);
-		}
-		
-		if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {	
-			if(totalDt > 0.5) {
-				createPlasmaBullet();
+		if(!playerCar.getIsDestroyed()) {
+			if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+				playerCar.setSpeed(playerCar.getSpeed() - acc);
 			}
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+				playerCar.setSpeed(playerCar.getSpeed() + acc);
+			}
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+				playerCar.getSprite().rotate(rotateAmt);
+				playerCar.getBoundPoly().rotate(rotateAmt);
+			}
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+				playerCar.getSprite().rotate(-rotateAmt);
+				playerCar.getBoundPoly().rotate(-rotateAmt);
+			}
+			
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {	
+				if(TimeUtils.timeSinceNanos(startTimeBullets) > 500000000) {
+					createPlasmaBullet();
+					
+					startTimeBullets = TimeUtils.nanoTime();
+				}
+			}
+			
+			if(Math.abs(playerCar.getSpeed()) < 0.1) {
+				playerCar.setSpeed(0);
+			}
+			
+			playerCar.setSpeed(playerCar.getSpeed() * (1 - friction));
+			
+			playerCar.getSprite().setOriginCenter();
+			
+			playerCar.move();
+			
+			playerCar.checkHP();
+			
+			cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
+					playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
+			
+			initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
+			initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
+			
+			gunPos.x = getRotatedX(initGunPos, playerCar);
+			gunPos.y = getRotatedY(initGunPos, playerCar);
+			
+			rearPos.x = getRotatedX(initRearPos, playerCar);
+			rearPos.y = getRotatedY(initRearPos, playerCar);
+			
+			cam.update();
 		}
-		
-		if(Math.abs(playerCar.getSpeed()) < 0.1) {
-			playerCar.setSpeed(0);
-		}
-		
-		playerCar.setSpeed(playerCar.getSpeed() * (1 - friction));
-		
-		playerCar.getSprite().setOriginCenter();
-		
-		playerCar.move();
-		
-		cam.position.set(playerCar.getSprite().getX() + (playerCar.getSprite().getWidth()/2), 
-				playerCar.getSprite().getY() + (playerCar.getSprite().getHeight()/2), 0);
-		
-		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
-		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
-		
-		gunPos.x = getRotatedX(initGunPos);
-		gunPos.y = getRotatedY(initGunPos);
-		
-		rearPos.x = getRotatedX(initRearPos);
-		rearPos.y = getRotatedY(initRearPos);
-		
-		cam.update();
 	}
 	
 	private void updateAICars() {
@@ -387,6 +426,8 @@ public class Track1 implements Screen {
 			car.move();
 			
 			car.checkHP();
+			
+			car.updateRearPos();
 			
 			cam.update();
 		}
@@ -422,8 +463,11 @@ public class Track1 implements Screen {
 		for(int i = 0; i < bulletPolys.size(); i++) {
 			for(int j = 0; j < carPolys.size(); j++) {
 				if(intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j)) && j > 0) {
-					cars.get(j).setHP(cars.get(j).getHP() - 0.5f);
+					cars.get(j).setHP(cars.get(j).getHP() - damageRate);
 					cars.get(j).getSprite().setTexture(AICarHit);
+					
+					pBullets.remove(i);
+					bulletPolys.remove(i);
 					//System.out.println("AiCar HP: " + cars.get(j).getHP());
 				}
 				
@@ -431,29 +475,47 @@ public class Track1 implements Screen {
 					cars.get(j).getSprite().setTexture(AICarTex);
 			}
 		}
+		
+		for(int i = 0; i < landMinePolys.size(); i++) {
+			if(intersector.overlapConvexPolygons(landMinePolys.get(i), playerCar.getBoundPoly()) && !playerCar.getIsDestroyed()) { // only the PlayerCar can be affected by the LandMines
+				cars.get(0).setHP(0);
+				cars.get(0).getSprite().setTexture(playerCarHit);
+				
+				landMines.get(i).setHP(0);
+			}
+			
+			else
+				cars.get(0).getSprite().setTexture(playerCarTex);
+		}
 	}
 	
-	private void updateBulletTimer(float delta) {
-		totalDt += delta;
+	private void updateLandMines() {
+		if(TimeUtils.timeSinceNanos(startTimeMines) > 5000000000L) {
+			if(cars.get(1).getSpeed() < -0.5)
+				createLandMine();
+			
+			startTimeMines = TimeUtils.nanoTime();
+		}
 		
-		if(totalDt > 0.6)
-			totalDt = 0;
+		for(int i = 0; i < landMines.size(); i++) {
+			landMines.get(i).checkHP();
+		}
 	}
 	
 	/*
 	 * A point on the car that was there initially will change position when the car rotates and moves.
-	 * These methods return the correct rotated point about the playerCar's middle x and y.
+	 * These methods return the correct rotated point about the given Car's middle x and y.
 	 */
-	public float getRotatedX(Vector2 pos) {
-		double angle = Math.toRadians(playerCar.getSprite().getRotation());
+	public float getRotatedX(Vector2 pos, Car car) {
+		double angle = Math.toRadians(car.getSprite().getRotation());
 		
-		return (float) (Math.cos(angle) * (pos.x - playerCar.getMidXPos()) - Math.sin(angle) * (pos.y - playerCar.getMidYPos()) + playerCar.getMidXPos());
+		return (float) (Math.cos(angle) * (pos.x - car.getMidXPos()) - Math.sin(angle) * (pos.y - car.getMidYPos()) + car.getMidXPos());
 	}
 	
-	public float getRotatedY(Vector2 pos) {
-		double angle = Math.toRadians(playerCar.getSprite().getRotation());
+	public float getRotatedY(Vector2 pos, Car car) {
+		double angle = Math.toRadians(car.getSprite().getRotation());
 		
-		return (float) (Math.sin(angle) * (pos.x - playerCar.getMidXPos()) + Math.cos(angle) * (pos.y - playerCar.getMidYPos()) + playerCar.getMidYPos());
+		return (float) (Math.sin(angle) * (pos.x - car.getMidXPos()) + Math.cos(angle) * (pos.y - car.getMidYPos()) + car.getMidYPos());
 	}
 	
 	/*
@@ -484,6 +546,23 @@ public class Track1 implements Screen {
 		pBulletSound.play();
 	}
 	
+	private void createLandMine() {
+		Sprite landMineSprite = new Sprite(landMineAni.getInitialFrame());
+		LandMine landMine = new LandMine(landMineAni, cars.get(1), landMineSprite, this);
+		
+		Polygon landMinePoly = new Polygon(new float[] { landMineSprite.getX(), landMineSprite.getY(),
+				landMineSprite.getX(), landMineSprite.getY() + landMineSprite.getHeight(),
+				landMineSprite.getX() + landMineSprite.getWidth(), landMineSprite.getY() + landMineSprite.getHeight(),
+				landMineSprite.getX() + landMineSprite.getWidth(), landMineSprite.getY()});
+		
+		landMinePoly.setOrigin(landMine.getMidPos().x, landMine.getMidPos().y);
+		
+		landMine.setBoundPoly(landMinePoly);
+		
+		landMines.add(landMine);
+		landMinePolys.add(landMinePoly);
+	}
+	
 	public ArrayList<Car> getCars() {
 		return cars;
 	}
@@ -498,6 +577,14 @@ public class Track1 implements Screen {
 	
 	public ArrayList<Polygon> getBulletPolys() {
 		return bulletPolys;
+	}
+	
+	public ArrayList<LandMine> getLandMines() {
+		return landMines;
+	}
+	
+	public ArrayList<Polygon> getLandMinePolys() {
+		return landMinePolys;
 	}
 	
 	public Sound getExplosion() {
@@ -543,6 +630,7 @@ public class Track1 implements Screen {
 		explosionSheet = game.mgr.get("img/explosion_sheet.png", Texture.class);
 		pBulletSound = game.mgr.get("audio/plasmabullet.wav", Sound.class);
 		explosion = game.mgr.get("audio/explosion.mp3", Sound.class);
+		landmineSheet = game.mgr.get("img/landmine_sheet.png", Texture.class);
 	}
 
 }

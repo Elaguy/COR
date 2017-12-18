@@ -17,6 +17,7 @@ public class AnimationObj {
 	private boolean loop;
 
 	private TextureRegion currentFrame;
+	private TextureRegion initialFrame;
 	
 	public AnimationObj(int fps, int frameCols, int frameRows, Texture spriteSheet, boolean loop) {	
 		stateTime = 0f;
@@ -40,6 +41,7 @@ public class AnimationObj {
 		ani = new Animation<TextureRegion>((float) 1 / fps, frames);
 		
 		currentFrame = ani.getKeyFrame(stateTime, loop);
+		initialFrame = frames[0];
 	}
 	
 	public void update() {
@@ -49,6 +51,10 @@ public class AnimationObj {
 	
 	public TextureRegion getCurrentFrame() {
 		return currentFrame;
+	}
+	
+	public TextureRegion getInitialFrame() {
+		return initialFrame;
 	}
 	
 	public int getSpriteWidth() {

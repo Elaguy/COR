@@ -54,3 +54,13 @@ Version 0.5a
 4. AICars are "destroyed" when their HP is 0 due to PlasmaBullets
 5. AICars now have an explosion animation when they are destroyed
 6. PlasmaBullets are deleted once they reach a certain distance
+7. AICar can now place mines down based on a predictable timer (I'm lazy)
+
+Version 0.6a
+----------------------------
+1. PlayerCar can now get blown up by the LandMines (but the PlayerCar's "ashes"
+can still move around, which will be fixed).
+
+Version 0.7a
+----------------------------
+1. PlayerCar's ashes cannot move (which is when the PlayerCar is destroyed).

@@ -113,6 +113,7 @@ public class Loading implements Screen {
 		game.mgr.load("img/explosion_sheet.png", Texture.class);
 		game.mgr.load("audio/plasmabullet.wav", Sound.class);
 		game.mgr.load("audio/explosion.mp3", Sound.class);
+		game.mgr.load("img/landmine_sheet.png", Texture.class);
 	}
 
 }

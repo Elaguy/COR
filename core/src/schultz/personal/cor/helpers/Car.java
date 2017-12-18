@@ -17,6 +17,9 @@ public class Car {
 	private Polygon boundPoly; // the polygon associated with this car object
 	private boolean isDestroyed;
 	
+	private Vector2 initRearPos;
+	private Vector2 rearPos;
+	
 	public Car(Sprite car, Track1 track1) {
 		this.car = car;
 		this.track1 = track1;
@@ -28,6 +31,9 @@ public class Car {
 		midYPos = car.getY() + car.getOriginY();
 		
 		isDestroyed = false;
+		
+		initRearPos = new Vector2(car.getX() + 131, car.getY() + 37);
+		rearPos = initRearPos;
 	}
 	
 	public Vector2 getVelocity(float speed, float rotation) {
@@ -62,6 +68,13 @@ public class Car {
 			
 			track1.getExplosion().play();
 		}
+	}
+	
+	public void updateRearPos() {
+		initRearPos = new Vector2(car.getX() + 131, car.getY() + 37);
+		
+		rearPos.x = track1.getRotatedX(initRearPos, this);
+		rearPos.y = track1.getRotatedY(initRearPos, this);
 	}
 	
 	public Sprite getSprite() {
@@ -106,5 +119,9 @@ public class Car {
 	
 	public void setIsDestroyed(boolean isDestroyed) {
 		this.isDestroyed = isDestroyed;
+	}
+	
+	public Vector2 getRearPos() {
+		return rearPos;
 	}
 }

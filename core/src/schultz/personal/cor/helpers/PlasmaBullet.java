@@ -28,8 +28,8 @@ public class PlasmaBullet {
 		this.pBullet = pBullet;
 		this.boundCar = boundCar;
 		
-		pBullet.setX(track.getRotatedX(initGunPos) - pBullet.getWidth()/2);
-		pBullet.setY(track.getRotatedY(initGunPos) - pBullet.getHeight()/2);
+		pBullet.setX(track.getRotatedX(initGunPos, boundCar) - pBullet.getWidth()/2);
+		pBullet.setY(track.getRotatedY(initGunPos, boundCar) - pBullet.getHeight()/2);
 		
 		pBullet.setOriginCenter();
 		this.midPos = new Vector2(pBullet.getX() + pBullet.getOriginX(), pBullet.getY() + pBullet.getOriginY());
