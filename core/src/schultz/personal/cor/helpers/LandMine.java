@@ -42,12 +42,7 @@ public class LandMine {
 	
 	public void checkHP() {
 		if(hp <= 0 && !isDestroyed) {
-			System.out.println("Land Mine destroyed at: " + pos);
-			
 			isDestroyed = true;
-			
-			//track1.getLandMines().remove(this);
-			track1.getLandMinePolys().remove(this.boundPoly);
 			
 			track1.getExplosion().play();
 		}

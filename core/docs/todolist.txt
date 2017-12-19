@@ -10,7 +10,7 @@ COR To-do List
 
 ** (COMPLETED) ** 4. Ability for PlayerCar to be destroyed/disappear - 0.7a
 
-5. Animation for the PlayerCar explosion/destruction - 0.8a
+** (COMPLETED) ** 5. Animation for the PlayerCar explosion/destruction - 0.8a
 
 6. Finish line and laps - 0.9a
 

@@ -39,6 +39,8 @@ public class Track1 implements Screen {
 	private ArrayList<Polygon> carPolys;
 	private ArrayList<Polygon> bulletPolys;
 	private ArrayList<Polygon> landMinePolys;
+	private ArrayList<AnimationObj> explosionCarAnimations;
+	private ArrayList<AnimationObj> explosionLandMineAnimations;
 	
 	private Waypoint current;
 	
@@ -84,9 +86,6 @@ public class Track1 implements Screen {
 	private Sound pBulletSound;
 	private Sound explosion;
 	
-	private AnimationObj explosionAni;
-	private AnimationObj explosionAni2;
-	private AnimationObj explosionAni3;
 	private AnimationObj landMineAni;
 	
 	public Track1(CORGame game) {
@@ -97,6 +96,12 @@ public class Track1 implements Screen {
 		
 		loadAssets();
 		
+		/*
+		 * I tried to build the game to support multiple AICars, but multiple AICars have
+		 * not been tested and are unlikely to work fully, if at all. 
+		 * 
+		 * == Modify the number of AICars at your own risk. ==
+		 */
 		numAiCars = 1;
 		
 		/*
@@ -113,6 +118,8 @@ public class Track1 implements Screen {
 		carPolys = new ArrayList<Polygon>();
 		bulletPolys = new ArrayList<Polygon>();
 		landMinePolys = new ArrayList<Polygon>();
+		explosionCarAnimations = new ArrayList<AnimationObj>();
+		explosionLandMineAnimations = new ArrayList<AnimationObj>();
 		
 		playerCarSprite = new Sprite(playerCarTex);
 		
@@ -170,6 +177,8 @@ public class Track1 implements Screen {
 			cars.get(i).setBoundPoly(aiPoly);
 			
 			carPolys.add(aiPoly);
+			
+			explosionCarAnimations.add(new AnimationObj(15, 5, 2, explosionSheet, false));
 		}
 		
 		// Default waypoints for the track
@@ -197,10 +206,9 @@ public class Track1 implements Screen {
 		race1.setLooping(true);
 		race1.play();
 		
-		explosionAni = new AnimationObj(15, 5, 2, explosionSheet, false);
-		explosionAni2 = new AnimationObj(15, 5, 2, explosionSheet, false);
-		explosionAni3 = new AnimationObj(15, 5, 2, explosionSheet, false);
-		landMineAni = new AnimationObj(5, 2, 1, landmineSheet, true);
+		explosionCarAnimations.add(new AnimationObj(15, 5, 2, explosionSheet, false));
+		
+		landMineAni = new AnimationObj(1, 2, 1, landmineSheet, true);
 		
 		/*
 		 * Default acceleration is 0.2f,
@@ -297,17 +305,9 @@ public class Track1 implements Screen {
 				}
 				
 				else {
-					if(i == 0) {
-						game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
-								current.getMidYPos() - explosionAni.getSpriteHeight()/2);
-						explosionAni.update();
-					}
-					
-					else {
-						game.batch.draw(explosionAni2.getCurrentFrame(), current.getMidXPos() - explosionAni2.getSpriteWidth()/2, 
-								current.getMidYPos() - explosionAni2.getSpriteHeight()/2);
-						explosionAni2.update();
-					}
+					game.batch.draw(explosionCarAnimations.get(i).getCurrentFrame(), current.getMidXPos() - explosionCarAnimations.get(i).getSpriteWidth()/2, 
+							current.getMidYPos() - explosionCarAnimations.get(i).getSpriteHeight()/2);
+					explosionCarAnimations.get(i).update();
 				}
 			}
 		}
@@ -317,28 +317,33 @@ public class Track1 implements Screen {
 		for(int i = 0; i < landMines.size(); i++) {
 			LandMine current = landMines.get(i);
 			
-			if(!landMines.get(i).getIsDestroyed())
-				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
+			if(!landMines.get(i).getIsDestroyed()) {
+				game.batch.draw(landMineAni.getCurrentFrame(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
 						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
+				landMineAni.update();
+			}
 			
 			else {
-				game.batch.draw(explosionAni3.getCurrentFrame(), current.getMidXPos() - explosionAni3.getSpriteWidth()/2, 
-						current.getMidYPos() - explosionAni3.getSpriteHeight()/2);
-				explosionAni3.update();
+				game.batch.draw(explosionLandMineAnimations.get(i).getCurrentFrame(), current.getMidXPos() - explosionLandMineAnimations.get(i).getSpriteWidth()/2, 
+						current.getMidYPos() - explosionLandMineAnimations.get(i).getSpriteHeight()/2);
+				explosionLandMineAnimations.get(i).update();
 			}
 		}
 	}
 	
-	private void drawPolygons() {
-		for(int i = 0; i < carPolys.size(); i++)
-			game.shape.polygon(carPolys.get(i).getTransformedVertices());
-		
-		for(int i = 0; i < bulletPolys.size(); i++)
-			game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
-		
-		for(int i = 0; i < landMinePolys.size(); i++)
-			game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
-	}
+//	private void drawPolygons() {
+//		for(int i = 0; i < carPolys.size(); i++)
+//			if(!cars.get(i).getIsDestroyed())
+//				game.shape.polygon(carPolys.get(i).getTransformedVertices());
+//		
+//		for(int i = 0; i < bulletPolys.size(); i++)
+//			if(!pBullets.get(i).getIsDestroyed())
+//				game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
+//		
+//		for(int i = 0; i < landMinePolys.size(); i++)
+//			if(!landMines.get(i).getIsDestroyed())
+//				game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
+//	}
 	
 	private void updateWaypoints() {
 		if(current.getCompleted()) {			
@@ -485,7 +490,7 @@ public class Track1 implements Screen {
 		}
 		
 		for(int i = 0; i < landMinePolys.size(); i++) {
-			if(intersector.overlapConvexPolygons(landMinePolys.get(i), playerCar.getBoundPoly()) && !playerCar.getIsDestroyed()) { // only the PlayerCar can be affected by the LandMines
+			if(!landMines.get(i).getIsDestroyed() && intersector.overlapConvexPolygons(landMinePolys.get(i), playerCar.getBoundPoly()) && !playerCar.getIsDestroyed()) { // only the PlayerCar can be affected by the LandMines
 				cars.get(0).setHP(0);
 				cars.get(0).getSprite().setTexture(playerCarHit);
 				
@@ -494,6 +499,16 @@ public class Track1 implements Screen {
 			
 			else
 				cars.get(0).getSprite().setTexture(playerCarTex);
+		}
+		
+		for(int i = 0; i < landMinePolys.size(); i++) {
+			for(int j = 0; j < bulletPolys.size(); j++) {
+				if(!landMines.get(i).getIsDestroyed() && !pBullets.get(j).getIsDestroyed() && intersector.overlapConvexPolygons(landMinePolys.get(i), bulletPolys.get(j))) {
+					landMines.get(i).setHP(0);
+					
+					pBullets.get(j).setIsDestroyed(true);
+				}
+			}
 		}
 	}
 	
@@ -508,8 +523,6 @@ public class Track1 implements Screen {
 		for(int i = 0; i < landMines.size(); i++) {
 			landMines.get(i).checkHP();
 		}
-		
-		System.out.println(cars.get(1).getSpeed());
 	}
 	
 	/*
@@ -571,6 +584,8 @@ public class Track1 implements Screen {
 		
 		landMines.add(landMine);
 		landMinePolys.add(landMinePoly);
+		
+		explosionLandMineAnimations.add(new AnimationObj(15, 5, 2, explosionSheet, false));
 	}
 	
 	public ArrayList<Car> getCars() {

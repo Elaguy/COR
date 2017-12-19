@@ -64,3 +64,11 @@ can still move around, which will be fixed).
 Version 0.7a
 ----------------------------
 1. PlayerCar's ashes cannot move (which is when the PlayerCar is destroyed).
+2. Various bugs and problems fixed.
+3. PlayerCar can now shoot and destroy the LandMines.
+
+Version 0.8a
+----------------------------
+= BETA STAGE =
+
+1. Other various bugs and problems fixed, especially animation bugs.
