@@ -19,8 +19,13 @@ COR To-do List
 
 BUGS
 ====
-1. When the PlasmaBullets are deleted when they hit the AICar, weird stuff
+(Not a complete list of all the bugs ever. I only started documenting bugs on 12/17/17.)
+
+** (FIXED) ** 1. When the PlasmaBullets are deleted when they hit the AICar, weird stuff
 happens especially with the AICar's hit and not hit textures.
 
-2. When the AICar is destroyed, when the playerCar runs into the LandMines,
-no explosion animation seems to occur.
+** (FIXED) ** 2. When the AICar is destroyed, when the playerCar runs into the LandMines,
+no explosion animation seems to occur besides the last frame of the animation, the "ashes".
+
+** (FIXED) ** 3. When the AICar is destroyed, it's speed is not even close to 0, and so it still
+places mines.

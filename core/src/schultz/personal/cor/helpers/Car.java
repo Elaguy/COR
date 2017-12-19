@@ -64,6 +64,8 @@ public class Car {
 		if(hp <= 0 && !isDestroyed) {
 			isDestroyed = true;
 			
+			speed = 0;
+			
 			track1.getCarPolys().remove(this.boundPoly);
 			
 			track1.getExplosion().play();

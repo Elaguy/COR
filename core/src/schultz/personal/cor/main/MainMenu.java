@@ -121,7 +121,7 @@ public class MainMenu implements Screen {
 									game.setScreen(new Track1(game));
 								}
 								
-							}, 1);
+							}, 0.5f);
 						}
 						
 						else if(Gdx.input.isTouched() && (current.getText().equals("Quit Game"))) {
@@ -134,7 +134,7 @@ public class MainMenu implements Screen {
 									Gdx.app.exit();
 								}
 								
-							}, 1);
+							}, 0.5f);
 						}
 							
 					}

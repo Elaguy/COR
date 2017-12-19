@@ -85,6 +85,8 @@ public class Track1 implements Screen {
 	private Sound explosion;
 	
 	private AnimationObj explosionAni;
+	private AnimationObj explosionAni2;
+	private AnimationObj explosionAni3;
 	private AnimationObj landMineAni;
 	
 	public Track1(CORGame game) {
@@ -196,6 +198,8 @@ public class Track1 implements Screen {
 		race1.play();
 		
 		explosionAni = new AnimationObj(15, 5, 2, explosionSheet, false);
+		explosionAni2 = new AnimationObj(15, 5, 2, explosionSheet, false);
+		explosionAni3 = new AnimationObj(15, 5, 2, explosionSheet, false);
 		landMineAni = new AnimationObj(5, 2, 1, landmineSheet, true);
 		
 		/*
@@ -217,10 +221,9 @@ public class Track1 implements Screen {
 		acc = 0.2f; // top speed (default friction): 19.8
 		aiAcc = 0.1f; // top speed (default friction): 9.9
 		friction = 0.01f;
-		damageRate = 1.5f;
+		damageRate = 20f;
 		startTimeBullets = 0;
 		startTimeMines = 0;
-		
 	}
 
 	@Override
@@ -266,8 +269,6 @@ public class Track1 implements Screen {
 		checkCollisions();
 		updateLandMines();
 		
-		System.out.println(cars.get(1).getSpeed());
-		
 		//System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
 	}
 	
@@ -278,7 +279,7 @@ public class Track1 implements Screen {
 	
 	private void drawCarsAndBullets() {
 		for(int i = 0; i < pBullets.size(); i++) {
-			if(!pBullets.isEmpty()) {
+			if(!pBullets.isEmpty() && !pBullets.get(i).getIsDestroyed()) {
 				PlasmaBullet current = pBullets.get(i);
 
 				game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
@@ -290,15 +291,23 @@ public class Track1 implements Screen {
 			for(int i = 0; i < cars.size(); i++) {
 				Car current = cars.get(i);
 				
-				if(!cars.get(i).getIsDestroyed()) {
+				if(!current.getIsDestroyed()) {
 					game.batch.draw(current.getSprite(), current.getSprite().getX(), current.getSprite().getY(), current.getSprite().getOriginX(),
 							current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
 				}
 				
 				else {
-					game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
-							current.getMidYPos() - explosionAni.getSpriteHeight()/2);
-					explosionAni.update();
+					if(i == 0) {
+						game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
+								current.getMidYPos() - explosionAni.getSpriteHeight()/2);
+						explosionAni.update();
+					}
+					
+					else {
+						game.batch.draw(explosionAni2.getCurrentFrame(), current.getMidXPos() - explosionAni2.getSpriteWidth()/2, 
+								current.getMidYPos() - explosionAni2.getSpriteHeight()/2);
+						explosionAni2.update();
+					}
 				}
 			}
 		}
@@ -313,9 +322,9 @@ public class Track1 implements Screen {
 						current.getSprite().getOriginY(), current.getSprite().getWidth(), current.getSprite().getHeight(), 1, 1, current.getSprite().getRotation());
 			
 			else {
-				game.batch.draw(explosionAni.getCurrentFrame(), current.getMidXPos() - explosionAni.getSpriteWidth()/2, 
-						current.getMidYPos() - explosionAni.getSpriteHeight()/2);
-				explosionAni.update();
+				game.batch.draw(explosionAni3.getCurrentFrame(), current.getMidXPos() - explosionAni3.getSpriteWidth()/2, 
+						current.getMidYPos() - explosionAni3.getSpriteHeight()/2);
+				explosionAni3.update();
 			}
 		}
 	}
@@ -462,12 +471,11 @@ public class Track1 implements Screen {
 		
 		for(int i = 0; i < bulletPolys.size(); i++) {
 			for(int j = 0; j < carPolys.size(); j++) {
-				if(intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j)) && j > 0) {
+				if(!pBullets.get(i).getIsDestroyed() && intersector.overlapConvexPolygons(bulletPolys.get(i), carPolys.get(j)) && j > 0) {
 					cars.get(j).setHP(cars.get(j).getHP() - damageRate);
 					cars.get(j).getSprite().setTexture(AICarHit);
 					
-					pBullets.remove(i);
-					bulletPolys.remove(i);
+					pBullets.get(i).setIsDestroyed(true);
 					//System.out.println("AiCar HP: " + cars.get(j).getHP());
 				}
 				
@@ -500,6 +508,8 @@ public class Track1 implements Screen {
 		for(int i = 0; i < landMines.size(); i++) {
 			landMines.get(i).checkHP();
 		}
+		
+		System.out.println(cars.get(1).getSpeed());
 	}
 	
 	/*

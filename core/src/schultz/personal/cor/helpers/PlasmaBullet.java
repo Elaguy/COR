@@ -3,7 +3,6 @@ package schultz.personal.cor.helpers;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
-
 import schultz.personal.cor.main.Track1;
 
 public class PlasmaBullet {
@@ -23,6 +22,8 @@ public class PlasmaBullet {
 	private float dist;
 	private float distLimit;
 	
+	private boolean isDestroyed;
+	
 	public PlasmaBullet(Sprite pBullet, Car boundCar, Track1 track) {
 		this.initGunPos = new Vector2(boundCar.getSprite().getX() + 22, boundCar.getSprite().getY() + 37);
 		this.pBullet = pBullet;
@@ -40,6 +41,8 @@ public class PlasmaBullet {
 		this.distLimit = 3000;
 		
 		pBullet.setRotation(boundCar.getSprite().getRotation());
+		
+		isDestroyed = false;
 	}
 	
 	private Vector2 getVelocity(float speed, float rotation) {
@@ -106,5 +109,13 @@ public class PlasmaBullet {
 	
 	public Polygon getBoundPoly() {
 		return boundPoly;
+	}
+	
+	public void setIsDestroyed(boolean isDestroyed) {
+		this.isDestroyed = isDestroyed;
+	}
+	
+	public boolean getIsDestroyed() {
+		return isDestroyed;
 	}
 }
