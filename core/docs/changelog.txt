@@ -72,3 +72,4 @@ Version 0.8a
 = BETA STAGE =
 
 1. Other various bugs and problems fixed, especially animation bugs.
+2. Ending UI renders and updates correctly besides a fullscreen bug.

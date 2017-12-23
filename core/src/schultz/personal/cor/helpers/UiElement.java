@@ -1,8 +1,8 @@
 package schultz.personal.cor.helpers;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-
 import schultz.personal.cor.main.CORGame;
 
 public class UiElement {
@@ -38,7 +38,9 @@ public class UiElement {
 		this.isButton = true;
 		this.scale = scale;
 		this.text = text;
+		
 		textLayout = new GlyphLayout(game.mainFont, text);
+		
 		elementWidth = tex.getWidth() * scale;
 		elementHeight = tex.getHeight() * scale;
 	}
@@ -47,7 +49,9 @@ public class UiElement {
 		this.isText = true;
 		this.scale = scale;
 		this.text = text;
+
 		textLayout = new GlyphLayout(game.mainFont, text);
+		
 		elementWidth = textLayout.width * scale;
 		elementHeight = textLayout.height * scale;
 	}

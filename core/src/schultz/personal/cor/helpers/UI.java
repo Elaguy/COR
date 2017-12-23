@@ -1,7 +1,6 @@
 package schultz.personal.cor.helpers;
 
 import java.util.ArrayList;
-import com.badlogic.gdx.graphics.Texture;
 
 /*
  * Pieces all of the UI elements together and, using
@@ -11,6 +10,8 @@ import com.badlogic.gdx.graphics.Texture;
  * main menus, but will probably be used elsewhere in the game.
  * Each element is added to the UI which stores it for recall into
  * an ArrayList of generic type.
+ * 
+ * Will probably break if used in an unusual manner.
  */
 
 public class UI {
@@ -19,14 +20,18 @@ public class UI {
 	private int screenHeight;
 	private int margin;
 	private boolean vertMode; // if true, elements will be placed vertically, otherwise placed horizontally
+	private float offsetX, offsetY;
 	
 	private ArrayList<UiElement> elements = new ArrayList<UiElement>();
 	
-	public UI(int width, int height, int margin, boolean vertMode) {
+	// offsets can be 0 if there is no position difference you want to use
+	public UI(int width, int height, int margin, float offsetX, float offsetY, boolean vertMode) {
 		screenWidth = width;
 		screenHeight = height;
 		this.margin = margin;
 		this.vertMode = vertMode;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
 	}
 	
 	/*
@@ -35,15 +40,13 @@ public class UI {
 	 * Note: each element has two margins
 	 */
 	public void calculateElements() {
-		int totalWidth = 0; // the total width the elements take up
-		int totalHeight = 0; // the total height the elements take up
-		int usableWidth = screenWidth - (totalWidth + (margin * elements.size()*2));
-		int usableHeight = screenHeight - (totalHeight + (margin * elements.size()*2));
+		int usableWidth = screenWidth - (margin * elements.size()*2);
+		int usableHeight = screenHeight - (margin * elements.size()*2);
 		
-		for(int i = 0; i < elements.size(); i++) {
-			totalWidth += elements.get(i).getWidth();
-			totalHeight += elements.get(i).getHeight();
-		}
+//		for(int i = 0; i < elements.size(); i++) {
+//			totalWidth += elements.get(i).getWidth();
+//			totalHeight += elements.get(i).getHeight();
+//		}
 		
 		if(vertMode) {
 			if(usableHeight >= 0) { // if its possible to place the elements at all
@@ -51,14 +54,14 @@ public class UI {
 				
 				for(int i = 0; i < elements.size(); i++) {
 					UiElement current = elements.get(i);
-					current.setElementY(pos);
-					current.setElementX((screenWidth/2) - (current.getWidth()/2)); // center on x axis
+					current.setElementY(pos + offsetY);
+					current.setElementX(((screenWidth/2) - (current.getWidth()/2)) + offsetX); // center on x axis
 					
 					if(current.isButton()) {
-						current.setTextX(current.getElementX() + 
-								(current.getWidth() - current.getGlyphLayout().width)/2);
-						current.setTextY(current.getElementY() + 
-								(current.getHeight() + current.getGlyphLayout().height)/2);
+						current.setTextX((current.getElementX() + 
+								(current.getWidth() - current.getGlyphLayout().width)/2));
+						current.setTextY((current.getElementY() + 
+								(current.getHeight() + current.getGlyphLayout().height)/2));
 					}
 					
 					pos += (margin + current.getHeight());
@@ -72,20 +75,25 @@ public class UI {
 				
 				for(int i = 0; i < elements.size(); i++) {
 					UiElement current = elements.get(i);
-					current.setElementX(pos);
-					current.setElementY((screenHeight/2) - (current.getHeight()/2));
+					current.setElementX(pos + offsetX);
+					current.setElementY(((screenHeight/2) - (current.getHeight()/2)) + offsetY);
 					
 					if(current.isButton()) {
-						current.setTextX(current.getElementX() + 
-								(current.getWidth() - current.getGlyphLayout().width)/2);
-						current.setTextY(current.getElementY() + 
-								(current.getHeight() + current.getGlyphLayout().height)/2);
+						current.setTextX((current.getElementX() + 
+								(current.getWidth() - current.getGlyphLayout().width)/2));
+						current.setTextY((current.getElementY() + 
+								(current.getHeight() + current.getGlyphLayout().height)/2));
 					}
 					
 					pos += (margin + current.getWidth());
 				}
 			}
 		}
+	}
+	
+	public void setOffsets(float offsetX, float offsetY) {
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
 	}
 	
 	public void addUiButton(UiButton button) {
@@ -102,6 +110,14 @@ public class UI {
 	
 	public ArrayList<UiElement> getElements() {
 		return elements;
+	}
+	
+	public void setWidth(int width) {
+		screenWidth = width;
+	}
+	
+	public void setHeight(int height) {
+		screenHeight = height;
 	}
 	
 }

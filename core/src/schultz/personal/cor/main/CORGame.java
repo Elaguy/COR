@@ -43,7 +43,6 @@ public class CORGame extends Game {
 		fontParam = new FreeTypeFontParameter();
 		fontParam.size = 35;
 		this.mainFont = defaultFont.generateFont(fontParam);
-		fontParam.size = 35;
 		this.smallishFont = defaultFont.generateFont(fontParam);
 		
 		this.setScreen(new Loading(this));

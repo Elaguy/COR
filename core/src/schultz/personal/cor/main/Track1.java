@@ -1,7 +1,6 @@
 package schultz.personal.cor.main;
 
 import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -17,12 +16,18 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
-
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 import schultz.personal.cor.helpers.AnimationObj;
 import schultz.personal.cor.helpers.Car;
 import schultz.personal.cor.helpers.LandMine;
 import schultz.personal.cor.helpers.PlasmaBullet;
+import schultz.personal.cor.helpers.UI;
+import schultz.personal.cor.helpers.UiButton;
+import schultz.personal.cor.helpers.UiElement;
+import schultz.personal.cor.helpers.UiText;
 import schultz.personal.cor.helpers.Waypoint;
 
 public class Track1 implements Screen {
@@ -54,9 +59,11 @@ public class Track1 implements Screen {
 	private Texture collision;
 	private Texture explosionSheet;
 	private Texture landmineSheet;
+	private Texture button;
+	private Texture buttonSelected;
+	private Texture buttonPressed;
 	
 	private Sprite playerCarSprite;
-	private Sprite aiCarSprite;
 	private Sprite track;
 	
 	private Car playerCar;
@@ -79,6 +86,7 @@ public class Track1 implements Screen {
 	private Pixmap collisionPixmap; // used for collision map so playerCar doesn't run off the track
 	
 	private Polygon playerPoly;
+	private Polygon finishPoly;
 	
 	private Intersector intersector;
 	
@@ -87,6 +95,21 @@ public class Track1 implements Screen {
 	private Sound explosion;
 	
 	private AnimationObj landMineAni;
+	
+	private float raceDist;
+	
+	private boolean showEndingUI;
+	private boolean playerWon;
+	private boolean initEndingMsg;
+	
+	private float offsetX, offsetY; // used for positioning the end game UI
+	
+	private UI endingUI;
+	private UiText endingMsg;
+	private UiButton playAgain;
+	private UiButton quitGame;
+	
+	private Vector3 mousePos;
 	
 	public Track1(CORGame game) {
 		this.game = game;
@@ -98,7 +121,7 @@ public class Track1 implements Screen {
 		
 		/*
 		 * I tried to build the game to support multiple AICars, but multiple AICars have
-		 * not been tested and are unlikely to work fully, if at all. 
+		 * not been tested and are unlikely to work fully, if at all.
 		 * 
 		 * == Modify the number of AICars at your own risk. ==
 		 */
@@ -106,8 +129,9 @@ public class Track1 implements Screen {
 		
 		/*
 		 * The carPolys arraylist is ordered according to the cars arraylist,
-		 * in order to identify a car associated with a polygon. I was too
-		 * lazy to write a better system.
+		 * in order to identify a car associated with a polygon. This also
+		 * applies to the landMines and their associated polygons, and
+		 * the PlasmaBullets. I was too lazy to write a better system.
 		 * 
 		 * == Modify the arraylists at your own risk. ==
 		 */
@@ -147,13 +171,13 @@ public class Track1 implements Screen {
 		
 		carPolys.add(playerPoly);
 		
+		finishPoly = new Polygon(new float[] { 1950, 0, 1950, 160, 2000, 160, 2000, 0 });
+		
 		initGunPos = new Vector2(playerCar.getSprite().getX() + 22, playerCar.getSprite().getY() + 37);
 		initRearPos = new Vector2(playerCar.getSprite().getX() + 131, playerCar.getSprite().getY() + 37);
 		
 		gunPos = initGunPos;
 		rearPos = initRearPos;
-		
-		aiCarSprite = new Sprite(AICarTex);
 
 		/*
 		 * With this current configuration, the AI Cars will spawn at (1750, 80) (x, y) (based on bottom-left origin of car)
@@ -210,6 +234,23 @@ public class Track1 implements Screen {
 		
 		landMineAni = new AnimationObj(1, 2, 1, landmineSheet, true);
 		
+		showEndingUI = false;
+		playerWon = false;
+		initEndingMsg = false;
+		
+		offsetX = playerCar.getMidXPos() - 500;
+		offsetY = playerCar.getMidYPos() - 400;
+		
+		endingUI = new UI(game.viewport.getScreenWidth(), game.viewport.getScreenHeight(), 80, 
+				offsetX, offsetY, true);
+		playAgain = new UiButton(button, "Play Again", 5, game);
+		quitGame = new UiButton(button, "Quit Game", 5, game);
+		
+		endingUI.addUiButton(quitGame);
+		endingUI.addUiButton(playAgain);
+		
+		mousePos = new Vector3();
+		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
@@ -232,6 +273,7 @@ public class Track1 implements Screen {
 		damageRate = 20f;
 		startTimeBullets = 0;
 		startTimeMines = 0;
+		raceDist = 8300; // approx. how far the Cars must go in order to cross the finish line
 	}
 
 	@Override
@@ -251,6 +293,7 @@ public class Track1 implements Screen {
 		drawTrackAndBackground();
 		drawCarsAndBullets();
 		drawLandMines();
+		drawEndingUI();
 		
 		game.batch.end();
 		
@@ -262,7 +305,7 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 		
-		//drawPolygons();
+		drawPolygons();
 	
 		game.shape.end();
 		
@@ -276,6 +319,7 @@ public class Track1 implements Screen {
 		updatePlasmaBullets();
 		checkCollisions();
 		updateLandMines();
+		updateEndingUI();
 		
 		//System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
 	}
@@ -331,19 +375,42 @@ public class Track1 implements Screen {
 		}
 	}
 	
-//	private void drawPolygons() {
-//		for(int i = 0; i < carPolys.size(); i++)
-//			if(!cars.get(i).getIsDestroyed())
-//				game.shape.polygon(carPolys.get(i).getTransformedVertices());
-//		
-//		for(int i = 0; i < bulletPolys.size(); i++)
-//			if(!pBullets.get(i).getIsDestroyed())
-//				game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
-//		
-//		for(int i = 0; i < landMinePolys.size(); i++)
-//			if(!landMines.get(i).getIsDestroyed())
-//				game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
-//	}
+	private void drawEndingUI() {
+		if(showEndingUI) {
+			for(int i = 0; i < endingUI.getElements().size(); i++) {
+				UiElement current = endingUI.getElements().get(i);
+				
+				if(current.isText()) { // text
+					game.mainFont.draw(game.batch, current.getGlyphLayout(), current.getElementX(),
+							current.getElementY());
+				}
+				
+				else if(endingUI.getElements().get(i).isButton()) { // buttons
+					game.batch.draw(current.getTexture(), current.getElementX(),
+							current.getElementY(), current.getWidth(),
+							current.getHeight());
+					game.smallishFont.draw(game.batch, current.getGlyphLayout(), current.getTextX(),
+							current.getTextY());
+				}
+			}
+		}
+	}
+
+	private void drawPolygons() {
+		for(int i = 0; i < carPolys.size(); i++)
+			if(!cars.get(i).getIsDestroyed())
+				game.shape.polygon(carPolys.get(i).getTransformedVertices());
+		
+		for(int i = 0; i < bulletPolys.size(); i++)
+			if(!pBullets.get(i).getIsDestroyed())
+				game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
+		
+		for(int i = 0; i < landMinePolys.size(); i++)
+			if(!landMines.get(i).getIsDestroyed())
+				game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
+		
+		game.shape.polygon(finishPoly.getTransformedVertices());
+	}
 	
 	private void updateWaypoints() {
 		if(current.getCompleted()) {			
@@ -355,7 +422,7 @@ public class Track1 implements Screen {
 	private void updatePlayerCar() {
 		int rotateAmt = 3;
 		
-		if(!playerCar.getIsDestroyed()) {
+		if(!playerCar.getIsDestroyed() && !showEndingUI) {
 			if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
 				playerCar.setSpeed(playerCar.getSpeed() - acc);
 			}
@@ -406,7 +473,12 @@ public class Track1 implements Screen {
 			rearPos.x = getRotatedX(initRearPos, playerCar);
 			rearPos.y = getRotatedY(initRearPos, playerCar);
 			
+			offsetX = playerCar.getMidXPos() - 500;
+			offsetY = playerCar.getMidYPos() - 400;
+			
 			cam.update();
+			
+			//System.out.println("Distance: " + playerCar.getDist());
 		}
 	}
 	
@@ -490,7 +562,8 @@ public class Track1 implements Screen {
 		}
 		
 		for(int i = 0; i < landMinePolys.size(); i++) {
-			if(!landMines.get(i).getIsDestroyed() && intersector.overlapConvexPolygons(landMinePolys.get(i), playerCar.getBoundPoly()) && !playerCar.getIsDestroyed()) { // only the PlayerCar can be affected by the LandMines
+			if(!landMines.get(i).getIsDestroyed() && intersector.overlapConvexPolygons(landMinePolys.get(i), playerCar.getBoundPoly()) && 
+					!playerCar.getIsDestroyed()) { // only the PlayerCar can be affected by the LandMines
 				cars.get(0).setHP(0);
 				cars.get(0).getSprite().setTexture(playerCarHit);
 				
@@ -503,10 +576,34 @@ public class Track1 implements Screen {
 		
 		for(int i = 0; i < landMinePolys.size(); i++) {
 			for(int j = 0; j < bulletPolys.size(); j++) {
-				if(!landMines.get(i).getIsDestroyed() && !pBullets.get(j).getIsDestroyed() && intersector.overlapConvexPolygons(landMinePolys.get(i), bulletPolys.get(j))) {
+				if(!landMines.get(i).getIsDestroyed() && !pBullets.get(j).getIsDestroyed() && 
+						intersector.overlapConvexPolygons(landMinePolys.get(i), bulletPolys.get(j))) {
 					landMines.get(i).setHP(0);
 					
 					pBullets.get(j).setIsDestroyed(true);
+				}
+			}
+		}
+		
+		for(int i = 0; i < cars.size(); i++) {
+			if(intersector.overlapConvexPolygons(finishPoly, cars.get(i).getBoundPoly())) {
+				if(cars.get(i).getDist() >= raceDist) { // if true, this Car has won the race
+					if(i == 0) { // if i == 0, the playerCar won
+						endingMsg = new UiText("You Have Succeeded!", 1, game);
+						playerWon = true;
+					}
+					
+					else
+						endingMsg = new UiText("You Have Failed!", 1, game);
+					
+					if(!initEndingMsg) {
+						endingUI.addUiText(endingMsg);
+						endingUI.calculateElements();
+						
+						initEndingMsg = true;
+					}
+					
+					showEndingUI = true;
 				}
 			}
 		}
@@ -522,6 +619,61 @@ public class Track1 implements Screen {
 		
 		for(int i = 0; i < landMines.size(); i++) {
 			landMines.get(i).checkHP();
+		}
+	}
+    
+	private void updateEndingUI() {
+		if(showEndingUI) {
+			endingUI.setOffsets(offsetX, offsetY);
+			endingUI.calculateElements();
+			
+			mousePos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+			cam.unproject(mousePos);
+			
+			for(int i = 0; i < endingUI.getElements().size(); i++) {
+				UiElement current = endingUI.getElements().get(i);
+				
+				if(current.isButton()) {			
+					if((mousePos.x >= current.getElementX()) && (mousePos.x <= (current.getElementX() + current.getWidth()))) {
+						if((mousePos.y >= current.getElementY()) && (mousePos.y <= (current.getElementY() + current.getHeight()))) {
+							current.setTexture(buttonSelected);
+							
+							if(Gdx.input.isTouched() && (current.getText().equals("Play Again"))) {
+								current.setTexture(buttonPressed);
+								
+								Timer.schedule(new Task() {
+	
+									@Override
+									public void run() {
+										System.out.println("Play Again button pressed!");
+									}
+									
+								}, 0.5f);
+							}
+							
+							else if(Gdx.input.isTouched() && (current.getText().equals("Quit Game"))) {
+								current.setTexture(buttonPressed);
+								
+								Timer.schedule(new Task() {
+	
+									@Override
+									public void run() {
+										Gdx.app.exit();
+									}
+									
+								}, 0.5f);
+							}
+								
+						}
+						
+						else
+							current.setTexture(button);
+					}
+					
+					else
+						current.setTexture(button);
+				}
+			}
 		}
 	}
 	
@@ -656,6 +808,10 @@ public class Track1 implements Screen {
 		pBulletSound = game.mgr.get("audio/plasmabullet.wav", Sound.class);
 		explosion = game.mgr.get("audio/explosion.mp3", Sound.class);
 		landmineSheet = game.mgr.get("img/landmine_sheet.png", Texture.class);
+		button = game.mgr.get("img/button.png", Texture.class);
+		buttonSelected = game.mgr.get("img/button_selected.png", Texture.class);
+		buttonPressed = game.mgr.get("img/button_pressed.png", Texture.class);
+		
 	}
 
 }

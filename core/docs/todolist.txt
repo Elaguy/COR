@@ -12,9 +12,11 @@ COR To-do List
 
 ** (COMPLETED) ** 5. Animation for the PlayerCar explosion/destruction - 0.8a
 
-6. Finish line and laps - 0.9a
+** (COMPLETED) ** 6. Finish line and laps - 0.8a
 
-7. Winning and losing GUI (Planned completion of game development) - 1.0r
+7. Reset() method to reset the game when player chooses "play again" button.
+
+8. Winning and losing GUI (Planned completion of game development) - 1.0r
 
 
 BUGS
@@ -29,3 +31,16 @@ no explosion animation seems to occur besides the last frame of the animation, t
 
 ** (FIXED) ** 3. When the AICar is destroyed, it's speed is not even close to 0, and so it still
 places mines.
+
+** (FIXED) ** 4. Text supposed to be on the two buttons on the ending UI are floating somewhere completely
+different.
+
+** (ON HOLD, PROBABLY WON'T BE FIXED, I TRIED) ** 5. The ending message stating who won the race continues to be colored white instead of 
+red or green, which depends on whether the player won the race or not. == LOW PRIORITY ==
+
+6. When the AICar's acceleration is set above 0.1, it glitches at a waypoint.
+
+7. When the game is put on fullscreen during the main menu, it is not placed at the right
+position.
+
+** (FIXED) ** 8. When the playerCar is moving, the "Quit Game" button text on the ending UI 'quivers' or 'shakes'.

@@ -14,7 +14,7 @@ import schultz.personal.cor.main.CORGame;
 
 public class UiButton extends UiElement {
 	
-	public UiButton(Texture tex, String text, int scale,CORGame game) {
+	public UiButton(Texture tex, String text, int scale, CORGame game) {
 		super(tex, text, scale,game);
 	}
 	

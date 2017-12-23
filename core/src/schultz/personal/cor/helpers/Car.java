@@ -20,6 +20,8 @@ public class Car {
 	private Vector2 initRearPos;
 	private Vector2 rearPos;
 	
+	private float dist; // used for playerCar to see if user drove all the way around the track
+	
 	public Car(Sprite car, Track1 track1) {
 		this.car = car;
 		this.track1 = track1;
@@ -34,6 +36,8 @@ public class Car {
 		
 		initRearPos = new Vector2(car.getX() + 131, car.getY() + 37);
 		rearPos = initRearPos;
+		
+		dist = 0;
 	}
 	
 	public Vector2 getVelocity(float speed, float rotation) {
@@ -58,6 +62,8 @@ public class Car {
 		if(boundPoly != null) {
 			boundPoly.translate(vel.x, vel.y);
 		}
+		
+		dist += speed;
 	}
 	
 	public void checkHP() {
@@ -125,5 +131,13 @@ public class Car {
 	
 	public Vector2 getRearPos() {
 		return rearPos;
+	}
+	
+	public void setDist(float dist) {
+		this.dist = dist;
+	}
+	
+	public float getDist() {
+		return Math.abs(dist);
 	}
 }
