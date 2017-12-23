@@ -67,9 +67,17 @@ Version 0.7a
 2. Various bugs and problems fixed.
 3. PlayerCar can now shoot and destroy the LandMines.
 
-Version 0.8a
+Version 0.8b
 ----------------------------
 = BETA STAGE =
 
 1. Other various bugs and problems fixed, especially animation bugs.
 2. Ending UI renders and updates correctly besides a fullscreen bug.
+3. Play Again Button now works. It allows the user to reset the game when
+the ending UI shows up.
+4. The game ends (aka the ending UI shows up) when the playerCar is destroyed
+and when the AICar is destroyed, not just when one of the Cars crosses the
+finish line.
+
+Version 0.9b
+----------------------------

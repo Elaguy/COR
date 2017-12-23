@@ -99,7 +99,6 @@ public class Track1 implements Screen {
 	private float raceDist;
 	
 	private boolean showEndingUI;
-	private boolean playerWon;
 	private boolean initEndingMsg;
 	
 	private float offsetX, offsetY; // used for positioning the end game UI
@@ -235,7 +234,6 @@ public class Track1 implements Screen {
 		landMineAni = new AnimationObj(1, 2, 1, landmineSheet, true);
 		
 		showEndingUI = false;
-		playerWon = false;
 		initEndingMsg = false;
 		
 		offsetX = playerCar.getMidXPos() - 500;
@@ -305,7 +303,7 @@ public class Track1 implements Screen {
 		
 		game.shape.setColor(Color.WHITE);
 		
-		drawPolygons();
+//		drawPolygons();
 	
 		game.shape.end();
 		
@@ -321,7 +319,7 @@ public class Track1 implements Screen {
 		updateLandMines();
 		updateEndingUI();
 		
-		//System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
+		System.out.println("FPS: " + Gdx.graphics.getFramesPerSecond());
 	}
 	
 	private void drawTrackAndBackground() {
@@ -396,21 +394,21 @@ public class Track1 implements Screen {
 		}
 	}
 
-	private void drawPolygons() {
-		for(int i = 0; i < carPolys.size(); i++)
-			if(!cars.get(i).getIsDestroyed())
-				game.shape.polygon(carPolys.get(i).getTransformedVertices());
-		
-		for(int i = 0; i < bulletPolys.size(); i++)
-			if(!pBullets.get(i).getIsDestroyed())
-				game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
-		
-		for(int i = 0; i < landMinePolys.size(); i++)
-			if(!landMines.get(i).getIsDestroyed())
-				game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
-		
-		game.shape.polygon(finishPoly.getTransformedVertices());
-	}
+//	private void drawPolygons() {
+//		for(int i = 0; i < carPolys.size(); i++)
+//			if(!cars.get(i).getIsDestroyed())
+//				game.shape.polygon(carPolys.get(i).getTransformedVertices());
+//		
+//		for(int i = 0; i < bulletPolys.size(); i++)
+//			if(!pBullets.get(i).getIsDestroyed())
+//				game.shape.polygon(bulletPolys.get(i).getTransformedVertices());
+//		
+//		for(int i = 0; i < landMinePolys.size(); i++)
+//			if(!landMines.get(i).getIsDestroyed())
+//				game.shape.polygon(landMinePolys.get(i).getTransformedVertices());
+//		
+//		game.shape.polygon(finishPoly.getTransformedVertices());
+//	}
 	
 	private void updateWaypoints() {
 		if(current.getCompleted()) {			
@@ -586,25 +584,33 @@ public class Track1 implements Screen {
 		}
 		
 		for(int i = 0; i < cars.size(); i++) {
-			if(intersector.overlapConvexPolygons(finishPoly, cars.get(i).getBoundPoly())) {
+			if(intersector.overlapConvexPolygons(finishPoly, cars.get(i).getBoundPoly()) || playerCar.getIsDestroyed() || cars.get(1).getIsDestroyed()) {
 				if(cars.get(i).getDist() >= raceDist) { // if true, this Car has won the race
-					if(i == 0) { // if i == 0, the playerCar won
+					if(i == 0) { // if i == 0, the playerCar won the race
 						endingMsg = new UiText("You Have Succeeded!", 1, game);
-						playerWon = true;
 					}
 					
-					else
+					else // the playerCar lost the race
 						endingMsg = new UiText("You Have Failed!", 1, game);
-					
-					if(!initEndingMsg) {
-						endingUI.addUiText(endingMsg);
-						endingUI.calculateElements();
-						
-						initEndingMsg = true;
-					}
-					
-					showEndingUI = true;
 				}
+				
+				else if(playerCar.getIsDestroyed()) // playerCar was destroyed
+					endingMsg = new UiText("You Have Failed!", 1, game);
+				else // AICar was destroyed
+					endingMsg = new UiText("You Have Succeeded!", 1, game);
+				
+				/*
+				 * Adds endingMsg to the endingUI, calculates the elements, and makes sure the endingUI doesn't happen
+				 * again and repeat itself. The endingUI can only do its thing once.
+				 */
+				if(!initEndingMsg) {
+					endingUI.addUiText(endingMsg);
+					endingUI.calculateElements();
+					
+					initEndingMsg = true;
+				}
+				
+				showEndingUI = true;
 			}
 		}
 	}
@@ -645,7 +651,7 @@ public class Track1 implements Screen {
 	
 									@Override
 									public void run() {
-										System.out.println("Play Again button pressed!");
+										game.setScreen(new Track1(game));
 									}
 									
 								}, 0.5f);

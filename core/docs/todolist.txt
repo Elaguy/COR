@@ -14,9 +14,9 @@ COR To-do List
 
 ** (COMPLETED) ** 6. Finish line and laps - 0.8a
 
-7. Reset() method to reset the game when player chooses "play again" button.
+** (COMPLETED) ** 7. Reset the game when the Play Again button is chosen on the ending UI
 
-8. Winning and losing GUI (Planned completion of game development) - 1.0r
+** (COMPLETED) ** 8. Winning and losing GUI (Planned completion of game development) - 1.0r
 
 
 BUGS
