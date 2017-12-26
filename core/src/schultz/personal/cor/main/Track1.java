@@ -301,8 +301,8 @@ public class Track1 implements Screen {
 		game.batch.setProjectionMatrix(cam.combined);
 		
 		drawTrackAndBackground();
-		drawCarsAndBullets();
 		drawLandMines();
+		drawCarsAndBullets();
 		drawEndingUI();
 		
 		game.batch.end();
@@ -349,8 +349,19 @@ public class Track1 implements Screen {
 			}
 		}
 		
+		if(!playerCar.getIsDestroyed()) {
+			game.batch.draw(playerCar.getSprite(), playerCar.getSprite().getX(), playerCar.getSprite().getY(), playerCar.getSprite().getOriginX(),
+					playerCar.getSprite().getOriginY(), playerCar.getSprite().getWidth(), playerCar.getSprite().getHeight(), 1, 1, playerCar.getSprite().getRotation());
+		}
+		
+		else {
+			game.batch.draw(explosionCarAnimations.get(0).getCurrentFrame(), playerCar.getMidXPos() - explosionCarAnimations.get(0).getSpriteWidth()/2, 
+					playerCar.getMidYPos() - explosionCarAnimations.get(0).getSpriteHeight()/2);
+			explosionCarAnimations.get(0).update();
+		}
+		
 		if(!cars.isEmpty()) {
-			for(int i = 0; i < cars.size(); i++) {
+			for(int i = 1; i < cars.size(); i++) {
 				Car current = cars.get(i);
 				
 				if(!current.getIsDestroyed()) {
@@ -609,10 +620,10 @@ public class Track1 implements Screen {
 				else if(playerCar.getIsDestroyed()) // playerCar was destroyed
 					endingMsg = new UiText("You Have Failed!", 1, game);
 				
-				else if(i > 0 && cars.get(i).getIsDestroyed())// AICar was destroyed
+				else if(cars.get(1).getIsDestroyed())// AICar was destroyed
 					endingMsg = new UiText("You Have Succeeded!", 1, game);
 				
-				else // end game if playerCar tries to go the wrong way
+				else // end game if playerCar tries to go the wrong way past the finish line
 					endingMsg = new UiText("You Have Failed!", 1, game);
 				
 				/*
