@@ -278,7 +278,7 @@ public class Track1 implements Screen {
 		 * = Modify it at your own risk. =
 		 * 
 		 */
-		aiAcc = 0.3f; // top speed (default friction): 9.9
+		aiAcc = 0.1f; // top speed (default friction): 9.9
 		friction = 0.01f;
 		damageRate = 20f;
 		startTimeBullets = 0;
