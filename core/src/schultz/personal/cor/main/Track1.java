@@ -250,6 +250,9 @@ public class Track1 implements Screen {
 		
 		mousePos = new Vector3();
 		
+		for(int i = 0; i < cars.size(); i++)
+			cars.get(i).setDist(0);
+		
 		/*
 		 * Default acceleration is 0.2f,
 		 * this creates a top speed of 19.8
@@ -267,7 +270,15 @@ public class Track1 implements Screen {
 		 * do the initial test in-game first)
 		 */
 		acc = 0.2f; // top speed (default friction): 19.8
-		aiAcc = 0.1f; // top speed (default friction): 9.9
+		
+		/*
+		 * Warning: tampering with the aiAcc is known to cause waypoint bugs,
+		 * but the bugs are difficult to pin down and fix.
+		 * 
+		 * = Modify it at your own risk. =
+		 * 
+		 */
+		aiAcc = 0.3f; // top speed (default friction): 9.9
 		friction = 0.01f;
 		damageRate = 20f;
 		startTimeBullets = 0;
@@ -499,7 +510,7 @@ public class Track1 implements Screen {
 			 * If car is set to stop at this waypoint OR this waypoint is the last in the list AND
 			 * the car's distance meets the "threshold", stop the car (this prevents strange glitches)
 			 */
-			if((Math.floor(wp.getAbsDist().x) < 10 && Math.floor(wp.getAbsDist().y) < 10)) {
+			if((Math.floor(wp.getAbsDist().x) < (aiAcc * 66.67f) && Math.floor(wp.getAbsDist().y) < (aiAcc * 66.67f))) {
 				if(wp.getStopHere() || waypoints.indexOf(wp) == (waypoints.size() - 1))
 					car.setSpeed(0);
 				
@@ -597,8 +608,12 @@ public class Track1 implements Screen {
 				
 				else if(playerCar.getIsDestroyed()) // playerCar was destroyed
 					endingMsg = new UiText("You Have Failed!", 1, game);
-				else // AICar was destroyed
+				
+				else if(i > 0 && cars.get(i).getIsDestroyed())// AICar was destroyed
 					endingMsg = new UiText("You Have Succeeded!", 1, game);
+				
+				else // end game if playerCar tries to go the wrong way
+					endingMsg = new UiText("You Have Failed!", 1, game);
 				
 				/*
 				 * Adds endingMsg to the endingUI, calculates the elements, and makes sure the endingUI doesn't happen
@@ -618,7 +633,7 @@ public class Track1 implements Screen {
 	
 	private void updateLandMines() {
 		if(TimeUtils.timeSinceNanos(startTimeMines) > 5000000000L) {
-			if(cars.get(1).getSpeed() < -0.5)
+			if(cars.get(1).getSpeed() < -1) // AICar's speed is negative
 				createLandMine();
 			
 			startTimeMines = TimeUtils.nanoTime();

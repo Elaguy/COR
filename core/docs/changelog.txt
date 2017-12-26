@@ -88,3 +88,4 @@ Version 1.0r
 = RELEASED! =
 
 1. Finishing touches.
+2. Fixed a few bugs.

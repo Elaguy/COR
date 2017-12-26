@@ -38,7 +38,7 @@ different.
 ** (ON HOLD, PROBABLY WON'T BE FIXED, I TRIED) ** 5. The ending message stating who won the race continues to be colored white instead of 
 red or green, which depends on whether the player won the race or not. == LOW PRIORITY ==
 
-6. When the AICar's acceleration is set above 0.1, it glitches at a waypoint.
+6. When the AICar's acceleration is set above 0.1, it glitches at a waypoint. (Probably fixed)
 
 ** (FIXED) ** 7. When the game is put on fullscreen during the main menu, the ending UI is not placed at the right
 position.
