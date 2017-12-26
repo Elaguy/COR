@@ -113,6 +113,7 @@ public class Track1 implements Screen {
 	public Track1(CORGame game) {
 		this.game = game;
 		
+		//cam = new OrthographicCamera(game.getScreenWidth(), game.getScreenHeight());
 		cam = new OrthographicCamera(game.getScreenWidth(), game.getScreenHeight());
 		cam.update();
 		
@@ -239,7 +240,7 @@ public class Track1 implements Screen {
 		offsetX = playerCar.getMidXPos() - 500;
 		offsetY = playerCar.getMidYPos() - 400;
 		
-		endingUI = new UI(game.viewport.getScreenWidth(), game.viewport.getScreenHeight(), 80, 
+		endingUI = new UI((int) (game.viewport.getWorldWidth()), (int) (game.viewport.getWorldHeight()), 80, 
 				offsetX, offsetY, true);
 		playAgain = new UiButton(button, "Play Again", 5, game);
 		quitGame = new UiButton(button, "Quit Game", 5, game);

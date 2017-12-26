@@ -3,14 +3,11 @@ package schultz.personal.cor.main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
-
 import schultz.personal.cor.helpers.UI;
 import schultz.personal.cor.helpers.UiButton;
 import schultz.personal.cor.helpers.UiElement;
@@ -38,7 +35,7 @@ public class MainMenu implements Screen {
 		
 		game.cam.update();
 		
-		ui = new UI(game.viewport.getScreenWidth(), game.viewport.getScreenHeight(), 80, 0, 0, true);
+		ui = new UI((int) (game.viewport.getWorldWidth()), (int) (game.viewport.getWorldHeight()), 80, 0, 0, true);
 		
 		loadAssets();
 		

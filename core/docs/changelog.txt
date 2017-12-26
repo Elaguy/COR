@@ -81,3 +81,10 @@ finish line.
 
 Version 0.9b
 ----------------------------
+5. Ending UI main menu fullscreen bug as described in todolist.txt is fixed.
+
+Version 1.0r
+----------------------------
+= RELEASED! =
+
+1. Finishing touches.

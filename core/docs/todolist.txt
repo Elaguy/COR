@@ -40,7 +40,10 @@ red or green, which depends on whether the player won the race or not. == LOW PR
 
 6. When the AICar's acceleration is set above 0.1, it glitches at a waypoint.
 
-7. When the game is put on fullscreen during the main menu, it is not placed at the right
+** (FIXED) ** 7. When the game is put on fullscreen during the main menu, the ending UI is not placed at the right
 position.
 
 ** (FIXED) ** 8. When the playerCar is moving, the "Quit Game" button text on the ending UI 'quivers' or 'shakes'.
+
+9. When the game is put on fullscreen during the main menu, the ending UI's updating/input gathering is very slightly buggy.
+The selection detection is off slightly, extending past the buttons to their right. == LOW PRIORITY ==
